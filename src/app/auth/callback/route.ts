@@ -11,6 +11,5 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // Redirect to Today workspace after OAuth authentication
   return NextResponse.redirect(new URL('/today', request.url));
 }

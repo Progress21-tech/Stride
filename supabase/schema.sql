@@ -1,6 +1,6 @@
 -- ============================================================================
 -- STRIDE PLATFORM — PRODUCTION SUPABASE / POSTGRESQL SCHEMA WITH AUTH SYNC
--- Compatible with Email/Password & Google OAuth Authentication
+-- 100% Idempotent Script — Safe to run multiple times in Supabase SQL Editor
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -236,19 +236,42 @@ CREATE TABLE IF NOT EXISTS public.audit_events (
 );
 
 -- ----------------------------------------------------------------------------
--- INDEXES & ROW LEVEL SECURITY
+-- INDEXES FOR PERFORMANCE
 -- ----------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_tasks_user_due ON public.tasks(user_id, due_date);
 CREATE INDEX IF NOT EXISTS idx_checkins_user_date ON public.check_ins(user_id, date);
 CREATE INDEX IF NOT EXISTS idx_applications_status ON public.applications(status);
 
+-- ----------------------------------------------------------------------------
+-- ROW LEVEL SECURITY (RLS) POLICIES — IDEMPOTENT (DROP IF EXISTS THEN CREATE)
+-- ----------------------------------------------------------------------------
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.check_ins ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can read own profile" ON public.users;
 CREATE POLICY "Users can read own profile" ON public.users FOR SELECT USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can edit own profile" ON public.users;
 CREATE POLICY "Users can edit own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can read own goals" ON public.goals;
+CREATE POLICY "Users can read own goals" ON public.goals FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can read own tasks" ON public.tasks;
 CREATE POLICY "Users can read own tasks" ON public.tasks FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can read own check-ins" ON public.check_ins;
 CREATE POLICY "Users can read own check-ins" ON public.check_ins FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admins have full access to users" ON public.users;
+CREATE POLICY "Admins have full access to users" ON public.users FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
+);
+
+DROP POLICY IF EXISTS "Admins have full access to applications" ON public.applications;
+CREATE POLICY "Admins have full access to applications" ON public.applications FOR ALL USING (
+  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
+);
