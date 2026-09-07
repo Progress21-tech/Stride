@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STRIDE — Structured Accountability Platform</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            stride: {
+              green: '#18A957',
+              'green-hover': '#15944c',
+              'green-light': '#e8f7ee',
+              'green-dark': '#0d5c30',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide SVG Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .glass-card {
+      background: rgba(18, 18, 21, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-light {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(120, 120, 120, 0.3);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col selection:bg-emerald-600/30 selection:text-emerald-400">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700 flex items-center justify-center font-bold text-lg tracking-wider text-emerald-500 shadow-sm">
+          S
+        </div>
+        <div class="flex flex-col">
+          <span class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
+            STRIDE
+            <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">PRD MVP</span>
+          </span>
+          <span class="text-[11px] text-zinc-400 -mt-0.5">Accountability System</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav id="nav-menu" class="hidden md:flex items-center gap-1 bg-zinc-900/90 p-1 rounded-lg border border-zinc-800/80 text-sm">
+        <button onclick="switchTab('today')" id="tab-btn-today" class="px-3 py-1.5 rounded-md font-medium text-zinc-300 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="check-square" class="w-4 h-4"></i> Today
+        </button>
+        <button onclick="switchTab('plan')" id="tab-btn-plan" class="px-3 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="target" class="w-4 h-4"></i> Plan
+        </button>
+        <button onclick="switchTab('checkin')" id="tab-btn-checkin" class="px-3 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="calendar" class="w-4 h-4"></i> Check-in
+        </button>
+        <button onclick="switchTab('progress')" id="tab-btn-progress" class="px-3 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="trending-up" class="w-4 h-4"></i> Progress
+        </button>
+        <button onclick="switchTab('resources')" id="tab-btn-resources" class="px-3 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="book-open" class="w-4 h-4"></i> Resources
+        </button>
+        <button onclick="switchTab('review')" id="tab-btn-review" class="px-3 py-1.5 rounded-md font-medium text-zinc-400 hover:text-white transition flex items-center gap-1.5">
+          <i data-lucide="video" class="w-4 h-4"></i> Saturday Review
+        </button>
+        <button onclick="switchTab('admin')" id="tab-btn-admin" class="px-3 py-1.5 rounded-md font-medium text-amber-400/90 hover:text-amber-300 transition flex items-center gap-1.5">
+          <i data-lucide="shield" class="w-4 h-4"></i> Admin Console
+        </button>
+      </nav>
+
+      <!-- Right Controls: Role Selector & Application Button -->
+      <div class="flex items-center gap-3">
+        
+        <!-- Role Switching Demo Toggle -->
+        <div class="hidden sm:flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-2.5 py-1 text-xs">
+          <span class="text-zinc-500 font-mono">Role:</span>
+          <select id="role-selector" onchange="changeRole(this.value)" class="bg-transparent text-zinc-200 font-medium focus:outline-none cursor-pointer">
+            <option value="MEMBER" class="bg-zinc-900 text-white">Member (Alex Chen)</option>
+            <option value="APPLICANT" class="bg-zinc-900 text-white">Applicant (David Okonjo)</option>
+            <option value="ADMIN" class="bg-zinc-900 text-white">Group Admin (Marcus Vance)</option>
+          </select>
+        </div>
+
+        <button onclick="switchTab('apply')" class="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-[#18A957] hover:bg-[#15944c] text-white shadow-sm transition flex items-center gap-1.5">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Apply Now
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- PAGE 1: TODAY WORKSPACE -->
+    <section id="view-today" class="space-y-6">
+      
+      <!-- Top Banner: Primary Goal Summary (3 Core Questions) -->
+      <div class="glass-card rounded-xl p-6 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-5">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-emerald-400 mb-1">
+              <i data-lucide="target" class="w-3.5 h-3.5"></i> Primary Goal Focus
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight" id="user-primary-goal-title">
+              Become a Frontend Developer
+            </h1>
+            <p class="text-xs text-zinc-400 mt-1 flex items-center gap-3">
+              <span>Week 3 of 12</span>
+              <span>•</span>
+              <span class="text-zinc-300">Milestone: JavaScript DOM & Event Loop Mastery</span>
+            </p>
+          </div>
+
+          <!-- Quick Action Check-in Button -->
+          <div class="flex items-center gap-3">
+            <div class="text-right hidden sm:block">
+              <div class="text-xs text-zinc-400">Daily Deadline</div>
+              <div class="text-xs font-mono font-semibold text-zinc-200">11:59 PM (UTC-5)</div>
+            </div>
+            <button onclick="switchTab('checkin')" class="px-4 py-2.5 text-xs font-semibold rounded-lg bg-[#18A957] hover:bg-[#15944c] text-white shadow-md transition flex items-center gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4"></i> Submit Today's Check-in
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 Core Questions Dashboard Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-5">
+          <div class="bg-zinc-900/60 rounded-lg p-3.5 border border-zinc-800/80">
+            <div class="text-xs text-zinc-400 font-medium">1. What am I achieving?</div>
+            <div class="text-sm font-semibold text-zinc-100 mt-1">Master Modern React & UI Engineering</div>
+          </div>
+          <div class="bg-zinc-900/60 rounded-lg p-3.5 border border-zinc-800/80">
+            <div class="text-xs text-zinc-400 font-medium">2. Today's Execution</div>
+            <div class="text-sm font-semibold text-emerald-400 mt-1 flex items-center justify-between">
+              <span id="today-tasks-progress-text">2 of 4 tasks completed</span>
+              <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">50%</span>
+            </div>
+          </div>
+          <div class="bg-zinc-900/60 rounded-lg p-3.5 border border-zinc-800/80">
+            <div class="text-xs text-zinc-400 font-medium">3. Daily Check-in Status</div>
+            <div class="text-sm font-semibold text-amber-400 mt-1 flex items-center justify-between" id="today-checkin-status">
+              <span>Pending submission</span>
+              <span class="text-[11px] text-zinc-400 font-normal">Due in 5h 30m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Grid: Tasks & Streak Overview -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left 2 Cols: Today's Tasks List -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+              <i data-lucide="list-checks" class="w-4 h-4 text-emerald-400"></i> Today's Daily Commitments
+            </h2>
+            <button onclick="openAddTaskModal()" class="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Task
+            </button>
+          </div>
+
+          <!-- Tasks List Container -->
+          <div class="space-y-2.5" id="today-tasks-container">
+            <!-- Dynamically populated tasks -->
+          </div>
+        </div>
+
+        <!-- Right Col: Streak & Accountability Metrics -->
+        <div class="space-y-4">
+          
+          <!-- Streak Card -->
+          <div class="glass-card rounded-xl p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+              <span class="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="flame" class="w-4 h-4 text-emerald-400"></i> Reporting Streak
+              </span>
+              <span class="text-xs text-zinc-400 font-mono">Qualifying Days</span>
+            </div>
+            
+            <div class="flex items-baseline justify-between">
+              <div>
+                <span class="text-4xl font-bold text-white tracking-tight" id="streak-counter">12</span>
+                <span class="text-sm text-zinc-400 ml-1">days streak</span>
+              </div>
+              <div class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded font-medium">
+                Active Streak
+              </div>
+            </div>
+
+            <p class="text-xs text-zinc-400">
+              Streak increases with qualifying check-ins logged before 11:59 PM in your local timezone.
+            </p>
+          </div>
+
+          <!-- Emergency Passes Widget -->
+          <div class="glass-card rounded-xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="shield-alert" class="w-4 h-4 text-zinc-400"></i> Emergency Passes
+              </span>
+              <span class="text-xs text-zinc-400 font-mono">Monthly Limit: 2</span>
+            </div>
+
+            <div class="flex items-center justify-between bg-zinc-900/80 p-3 rounded-lg border border-zinc-800">
+              <div>
+                <div class="text-xs text-zinc-300 font-medium">Passes Used This Month</div>
+                <div class="text-xs text-zinc-400">0 of 2 passes used</div>
+              </div>
+              <button onclick="useEmergencyPass()" class="px-2.5 py-1 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition">
+                Use Pass
+              </button>
+            </div>
+          </div>
+
+          <!-- Saturday Review Reminder -->
+          <div class="glass-card rounded-xl p-5 space-y-3 border-l-4 border-l-[#18A957]">
+            <div class="text-xs text-zinc-400 font-mono uppercase">Next Saturday Review</div>
+            <div class="text-sm font-semibold text-white">Saturday at 4:00 PM UTC</div>
+            <p class="text-xs text-zinc-400">Mandatory weekly group review call with group leader and peers.</p>
+            <button onclick="switchTab('review')" class="w-full text-center text-xs text-emerald-400 hover:underline font-medium">
+              View Weekly Summary Package & Join Link →
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: APPLICATION FORM -->
+    <section id="view-apply" class="hidden max-w-3xl mx-auto space-y-6">
+      <div class="glass-card rounded-xl p-6 sm:p-8 space-y-6">
+        <div>
+          <div class="text-xs font-mono uppercase text-emerald-400 mb-1">Admission Filter</div>
+          <h1 class="text-2xl font-bold text-white tracking-tight">Apply to Join Stride</h1>
+          <p class="text-sm text-zinc-400 mt-1">
+            Stride filters for serious learners who commit to daily execution, 11:59 PM check-ins, and mandatory Saturday reviews.
+          </p>
+        </div>
+
+        <form onsubmit="handleApplicationSubmit(event)" class="space-y-5">
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1">Full Name *</label>
+              <input type="text" id="app-fullname" required placeholder="e.g. David Okonjo" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1">Email Address *</label>
+              <input type="email" id="app-email" required placeholder="david@example.com" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1">WhatsApp Number *</label>
+              <input type="text" id="app-whatsapp" required placeholder="+234 803 123 4567" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1">Location / Timezone *</label>
+              <select id="app-timezone" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                <option value="Africa/Lagos (UTC+1)">Africa/Lagos (UTC+1)</option>
+                <option value="Europe/London (UTC+0)">Europe/London (UTC+0)</option>
+                <option value="America/New_York (UTC-5)">America/New_York (UTC-5)</option>
+                <option value="America/Los_Angeles (UTC-8)">America/Los_Angeles (UTC-8)</option>
+                <option value="Asia/Dubai (UTC+4)">Asia/Dubai (UTC+4)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1">Current Tech Status *</label>
+              <select id="app-techstatus" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                <option value="Complete Beginner">Complete Beginner</option>
+                <option value="Still Exploring">Still Exploring</option>
+                <option value="Enrolled in Course">Enrolled in Course</option>
+                <option value="Self-Taught">Self-Taught</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1">Primary Area of Interest *</label>
+              <select id="app-interest" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                <option value="Web Development">Web Development</option>
+                <option value="Data">Data Analytics</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+                <option value="Product Design">Product Design</option>
+                <option value="General Intro">Need Intro to Tech</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1">Daily Learning Capacity *</label>
+            <input type="text" id="app-capacity" required placeholder="e.g. 2 hours/day" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1">Why accountability now? (Minimum 50 words) *</label>
+            <textarea id="app-why" required rows="3" placeholder="Explain your current struggle with course completion or consistency..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+
+          <div class="space-y-2 bg-zinc-900/60 p-4 rounded-lg border border-zinc-800 text-xs">
+            <div class="font-semibold text-zinc-200 mb-1">Community Commitments *</div>
+            
+            <label class="flex items-center gap-2 text-zinc-300 cursor-pointer">
+              <input type="checkbox" id="app-commit-1" required checked class="rounded accent-emerald-500">
+              I commit to logging daily progress reports by 11:59 PM in my local timezone.
+            </label>
+            
+            <label class="flex items-center gap-2 text-zinc-300 cursor-pointer">
+              <input type="checkbox" id="app-commit-2" required checked class="rounded accent-emerald-500">
+              I commit to attending mandatory Saturday group review calls.
+            </label>
+
+            <label class="flex items-center gap-2 text-zinc-300 cursor-pointer">
+              <input type="checkbox" id="app-commit-3" required checked class="rounded accent-emerald-500">
+              I accept the policy of 2 emergency passes maximum per calendar month.
+            </label>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1">Discipline Plan (How will you handle motivation decline?) *</label>
+            <textarea id="app-discipline" required rows="2" placeholder="Specific action plan when momentum drops..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+
+          <button type="submit" class="w-full py-3 text-sm font-semibold rounded-lg bg-[#18A957] hover:bg-[#15944c] text-white shadow-md transition flex items-center justify-center gap-2">
+            <i data-lucide="send" class="w-4 h-4"></i> Submit Application & Enter Review
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- PAGE 3: UNDER REVIEW / STATUS -->
+    <section id="view-status" class="hidden max-w-4xl mx-auto space-y-6">
+      <div class="glass-card rounded-xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
+          <div>
+            <div class="text-xs font-mono uppercase text-amber-400 mb-1">Application Status</div>
+            <h1 class="text-2xl font-bold text-white tracking-tight" id="status-user-name">David Okonjo</h1>
+            <p class="text-xs text-zinc-400 mt-1">Submitted on <span id="status-submitted-date">Today</span> • Track: <span id="status-track-name" class="text-zinc-200">Web Development</span></p>
+          </div>
+
+          <div class="px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold flex items-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4"></i> Under Admin Review
+          </div>
+        </div>
+
+        <!-- Curated Introductory Resource Video Embedded -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-white flex items-center gap-2">
+              <i data-lucide="play-circle" class="w-4 h-4 text-emerald-400"></i> Curated Introductory Resource
+            </h2>
+            <span class="text-xs text-zinc-400">Matched to your selected interest area</span>
+          </div>
+
+          <div class="aspect-video w-full rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 relative">
+            <iframe id="intro-video-iframe" class="w-full h-full" src="https://www.youtube.com/embed/zJSY8tbf_ys" title="Introductory Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <!-- Reflection Input -->
+        <div class="bg-zinc-900/60 p-5 rounded-xl border border-zinc-800 space-y-3">
+          <label class="block text-xs font-semibold text-zinc-200">
+            Lightweight Reflection Question: What about this field interests you most?
+          </label>
+          <textarea id="reflection-input" rows="2" placeholder="Share what aspect of this track excites you most..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+          <button onclick="saveReflection()" class="px-3.5 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition">
+            Save Reflection Answer
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 4: DAILY CHECK-IN -->
+    <section id="view-checkin" class="hidden max-w-2xl mx-auto space-y-6">
+      <div class="glass-card rounded-xl p-6 sm:p-8 space-y-6">
+        <div>
+          <div class="text-xs font-mono uppercase text-emerald-400 mb-1">Daily Accountability Report</div>
+          <h1 class="text-2xl font-bold text-white tracking-tight">Submit Today's Check-in</h1>
+          <p class="text-xs text-zinc-400 mt-1">
+            Deadline: 11:59 PM in your local timezone (<span class="font-mono text-zinc-300">UTC-5</span>).
+          </p>
+        </div>
+
+        <form onsubmit="handleCheckinSubmit(event)" class="space-y-5">
+          
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1.5">1. Did you complete today's commitment? *</label>
+            <div class="grid grid-cols-3 gap-3">
+              <label class="border border-zinc-800 rounded-lg p-3 text-center cursor-pointer hover:border-emerald-500 transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10">
+                <input type="radio" name="chk-status" value="YES" checked class="hidden">
+                <div class="text-xs font-semibold text-emerald-400">Yes</div>
+                <div class="text-[11px] text-zinc-500">All planned tasks</div>
+              </label>
+
+              <label class="border border-zinc-800 rounded-lg p-3 text-center cursor-pointer hover:border-amber-500 transition has-[:checked]:border-amber-500 has-[:checked]:bg-amber-500/10">
+                <input type="radio" name="chk-status" value="PARTIAL" class="hidden">
+                <div class="text-xs font-semibold text-amber-400">Partial</div>
+                <div class="text-[11px] text-zinc-500">Some progress made</div>
+              </label>
+
+              <label class="border border-zinc-800 rounded-lg p-3 text-center cursor-pointer hover:border-zinc-700 transition has-[:checked]:border-zinc-700 has-[:checked]:bg-zinc-800">
+                <input type="radio" name="chk-status" value="NO" class="hidden">
+                <div class="text-xs font-semibold text-zinc-400">No</div>
+                <div class="text-[11px] text-zinc-500">Missed today</div>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1">2. What did you learn today? *</label>
+            <textarea id="chk-learnings" required rows="2" placeholder="Key concepts, syntax, or insights gained..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1">3. What did you complete today? *</label>
+            <textarea id="chk-completed" required rows="2" placeholder="Specific code written, lessons finished, projects built..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1">4. How much time did you spend? (Minutes) *</label>
+            <input type="number" id="chk-minutes" required min="15" max="720" value="90" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1">5. What blocked you today? (Optional)</label>
+            <input type="text" id="chk-blockers" placeholder="e.g. CSS Grid alignment issue, work overtime..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-zinc-300 mb-1">6. What is tomorrow's priority? (Optional)</label>
+            <input type="text" id="chk-next" placeholder="e.g. Master React useState hook..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3.5 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+          </div>
+
+          <button type="submit" class="w-full py-3 text-sm font-semibold rounded-lg bg-[#18A957] hover:bg-[#15944c] text-white shadow-md transition flex items-center justify-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4"></i> Submit Check-in
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- PAGE 5: ADMIN CONSOLE -->
+    <section id="view-admin" class="hidden space-y-6">
+      
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
+        <div>
+          <div class="text-xs font-mono uppercase text-amber-400">Operations Console</div>
+          <h1 class="text-2xl font-bold text-white tracking-tight">Admin Overview Dashboard</h1>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-zinc-400">Admin: <span class="text-white font-medium">Marcus Vance</span></span>
+        </div>
+      </div>
+
+      <!-- Admin Overview Widgets (6 Metrics) -->
+      <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
+        <div class="glass-card rounded-xl p-4 space-y-1">
+          <div class="text-[11px] text-zinc-400">Applications Pending</div>
+          <div class="text-2xl font-bold text-amber-400" id="widget-pending-apps">2</div>
+        </div>
+        <div class="glass-card rounded-xl p-4 space-y-1">
+          <div class="text-[11px] text-zinc-400">Today's Check-ins</div>
+          <div class="text-2xl font-bold text-emerald-400" id="widget-today-checkins">1 / 2</div>
+        </div>
+        <div class="glass-card rounded-xl p-4 space-y-1">
+          <div class="text-[11px] text-zinc-400">At-Risk Members</div>
+          <div class="text-2xl font-bold text-zinc-200" id="widget-atrisk">0</div>
+        </div>
+        <div class="glass-card rounded-xl p-4 space-y-1">
+          <div class="text-[11px] text-zinc-400">Group Completion Rate</div>
+          <div class="text-2xl font-bold text-emerald-400">83%</div>
+        </div>
+        <div class="glass-card rounded-xl p-4 space-y-1">
+          <div class="text-[11px] text-zinc-400">Saturday Review</div>
+          <div class="text-sm font-bold text-white mt-1">Ready</div>
+        </div>
+        <div class="glass-card rounded-xl p-4 space-y-1">
+          <div class="text-[11px] text-zinc-400">Passes Used</div>
+          <div class="text-2xl font-bold text-zinc-400">0</div>
+        </div>
+      </div>
+
+      <!-- Applications Queue Section -->
+      <div class="glass-card rounded-xl p-6 space-y-4">
+        <h2 class="text-base font-semibold text-white flex items-center gap-2">
+          <i data-lucide="inbox" class="w-4 h-4 text-amber-400"></i> Applications Awaiting Review
+        </h2>
+
+        <div id="admin-apps-list" class="space-y-4">
+          <!-- Dynamically populated applications queue cards -->
+        </div>
+      </div>
+
+      <!-- Members Management Table -->
+      <div class="glass-card rounded-xl p-6 space-y-4">
+        <h2 class="text-base font-semibold text-white flex items-center gap-2">
+          <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i> Approved Members Directory & Compliance
+        </h2>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-zinc-900/90 text-zinc-400 uppercase font-mono border-b border-zinc-800">
+              <tr>
+                <th class="p-3">Member</th>
+                <th class="p-3">Track</th>
+                <th class="p-3">Primary Goal</th>
+                <th class="p-3">Streak</th>
+                <th class="p-3">Task Completion</th>
+                <th class="p-3">Today Check-in</th>
+                <th class="p-3">Risk Level</th>
+                <th class="p-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-members-tbody" class="divide-y divide-zinc-800/60">
+              <!-- Dynamically populated member rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Audit Trail Section -->
+      <div class="glass-card rounded-xl p-6 space-y-3">
+        <h2 class="text-base font-semibold text-white flex items-center gap-2">
+          <i data-lucide="scroll" class="w-4 h-4 text-zinc-400"></i> Administrative Audit Trail
+        </h2>
+        <div class="bg-zinc-900/80 rounded-lg p-3 font-mono text-xs text-zinc-300 space-y-1.5" id="audit-trail-container">
+          <!-- Dynamically populated audit events -->
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 6: PLAN / GOAL HIERARCHY -->
+    <section id="view-plan" class="hidden space-y-6">
+      <div class="glass-card rounded-xl p-6 sm:p-8 space-y-6">
+        <div>
+          <div class="text-xs font-mono uppercase text-emerald-400 mb-1">Structured Planning</div>
+          <h1 class="text-2xl font-bold text-white tracking-tight">Goal Hierarchy & Execution Roadmap</h1>
+          <p class="text-xs text-zinc-400 mt-1">Primary Goal → Milestones → Weekly Objectives → Daily Tasks</p>
+        </div>
+
+        <div class="bg-zinc-900/80 rounded-xl p-5 border border-zinc-800 space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i> Become a Frontend Developer
+            </span>
+            <span class="text-xs px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">Target: 3 Months</span>
+          </div>
+
+          <!-- Milestones Tree -->
+          <div class="space-y-4 pl-3 border-l-2 border-zinc-800">
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-xs font-semibold text-zinc-200">
+                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> Milestone 1: HTML5 & CSS Grid/Flexbox Fundamentals (Completed)
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                <i data-lucide="circle-dot" class="w-4 h-4 text-emerald-400"></i> Milestone 2: JavaScript DOM & Event Loop Mastery (In Progress)
+              </div>
+              <div class="pl-6 space-y-1.5 text-xs text-zinc-300">
+                <div class="p-2 rounded bg-zinc-900 border border-zinc-800 flex justify-between">
+                  <span>Weekly Objective: Finish JavaScript async/await & DOM manipulation project</span>
+                  <span class="text-zinc-500">4 Tasks</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 7: PROGRESS ANALYTICS -->
+    <section id="view-progress" class="hidden space-y-6">
+      <div class="glass-card rounded-xl p-6 sm:p-8 space-y-6">
+        <div>
+          <div class="text-xs font-mono uppercase text-emerald-400 mb-1">Historical Evidence</div>
+          <h1 class="text-2xl font-bold text-white tracking-tight">Progress Analytics & Accountability History</h1>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <div class="text-xs text-zinc-400">Check-in Rate</div>
+            <div class="text-3xl font-bold text-emerald-400 mt-1">100%</div>
+          </div>
+          <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <div class="text-xs text-zinc-400">Task Completion</div>
+            <div class="text-3xl font-bold text-emerald-400 mt-1">83%</div>
+          </div>
+          <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <div class="text-xs text-zinc-400">Self-Reported Learning Time</div>
+            <div class="text-3xl font-bold text-white mt-1">8h 40m</div>
+          </div>
+          <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <div class="text-xs text-zinc-400">Milestones Completed</div>
+            <div class="text-3xl font-bold text-white mt-1">1 of 4</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 8: RESOURCES CATALOG -->
+    <section id="view-resources" class="hidden space-y-6">
+      <div class="glass-card rounded-xl p-6 sm:p-8 space-y-6">
+        <div>
+          <div class="text-xs font-mono uppercase text-emerald-400 mb-1">Learning Direction</div>
+          <h1 class="text-2xl font-bold text-white tracking-tight">Curated Learning Resources</h1>
+          <p class="text-xs text-zinc-400 mt-1">Hand-curated courses and introductory roadmaps mapped by interest track.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="resources-list-container">
+          <!-- Dynamically populated resource cards -->
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 9: SATURDAY REVIEW -->
+    <section id="view-review" class="hidden space-y-6 max-w-4xl mx-auto">
+      <div class="glass-card rounded-xl p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
+          <div>
+            <div class="text-xs font-mono uppercase text-emerald-400 mb-1">Weekly Group Review</div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Saturday Review Package</h1>
+            <p class="text-xs text-zinc-400 mt-1">Auto-generated summary for Saturday group review call</p>
+          </div>
+
+          <a href="https://meet.google.com/abc-defg-hij" target="_blank" class="px-4 py-2.5 text-xs font-semibold rounded-lg bg-[#18A957] hover:bg-[#15944c] text-white shadow-md transition flex items-center gap-2">
+            <i data-lucide="video" class="w-4 h-4"></i> Join Google Meet Room
+          </a>
+        </div>
+
+        <!-- Weekly Summary Card -->
+        <div class="bg-zinc-900/90 rounded-xl p-6 border border-zinc-800 space-y-4">
+          <div class="text-sm font-bold text-white border-b border-zinc-800 pb-2">
+            Member: Alex Chen | Week Ending Saturday
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div>
+              <span class="text-zinc-400">Weekly Objective:</span>
+              <div class="font-medium text-white mt-0.5">Finish JavaScript async/await & DOM project</div>
+            </div>
+            <div>
+              <span class="text-zinc-400">Tasks Planned vs Done:</span>
+              <div class="font-medium text-emerald-400 mt-0.5">15 of 18 completed (83%)</div>
+            </div>
+            <div>
+              <span class="text-zinc-400">Check-ins Submitted:</span>
+              <div class="font-medium text-emerald-400 mt-0.5">6 / 7 days</div>
+            </div>
+            <div>
+              <span class="text-zinc-400">Learning Time:</span>
+              <div class="font-medium text-white mt-0.5">8h 40m</div>
+            </div>
+          </div>
+
+          <div class="text-xs border-t border-zinc-800 pt-3">
+            <span class="text-zinc-400">Main Blocker Discussed:</span>
+            <div class="text-zinc-200 mt-0.5 font-mono">DOM Event Delegation Bubbling edge cases</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SCRIPT CONTROLLER & STATE persistence -->
+  <script>
+    // Initial App State
+    let appState = {
+      role: 'MEMBER',
+      currentTab: 'today',
+      applications: [
+        {
+          id: 'app-101',
+          userName: 'David Okonjo',
+          userEmail: 'david.o@example.com',
+          whatsappNumber: '+234 803 123 4567',
+          timezone: 'Africa/Lagos (UTC+1)',
+          techStatus: 'Complete Beginner',
+          interest: 'Web Development',
+          capacity: '2 hours/day',
+          why: 'I have started 3 different Udemy courses in the last 6 months but dropped out after week 2 every single time due to lack of structure and isolation. I need daily check-ins and peer accountability to keep moving forward.',
+          score: 92,
+          status: 'SUBMITTED'
+        },
+        {
+          id: 'app-102',
+          userName: 'Amina Yusuf',
+          userEmail: 'amina.yusuf@example.com',
+          whatsappNumber: '+234 812 987 6543',
+          timezone: 'Africa/Lagos (UTC+1)',
+          techStatus: 'Self-Taught',
+          interest: 'Data',
+          capacity: '1.5 hours/day',
+          why: 'I am transitioning from accounting into Data Analytics. I need a clear goal hierarchy and weekly review feedback so I do not waste time jumping between random tutorials.',
+          score: 88,
+          status: 'UNDER_REVIEW'
+        }
+      ],
+      members: [
+        {
+          id: 'mem-1',
+          name: 'Alex Chen',
+          track: 'Web Development',
+          goal: 'Become a Frontend Developer',
+          streak: 12,
+          completionRate: 83,
+          checkinToday: false,
+          risk: 'Normal',
+          passes: '0 / 2'
+        },
+        {
+          id: 'mem-2',
+          name: 'Sarah Kante',
+          track: 'Data Analytics',
+          goal: 'Master SQL & Data Science',
+          streak: 7,
+          completionRate: 90,
+          checkinToday: true,
+          risk: 'Normal',
+          passes: '1 / 2'
+        }
+      ],
+      tasks: [
+        { id: 't-1', title: 'Implement mobile navigation drawer with accessible ARIA attributes', completed: true, status: 'COMPLETED' },
+        { id: 't-2', title: 'Refactor fetch API handling to include error try/catch boundaries', completed: true, status: 'COMPLETED' },
+        { id: 't-3', title: 'Write custom hook for window resize breakpoint detection', completed: false, status: 'PLANNED' },
+        { id: 't-4', title: 'Review JS Event Bubbling vs Capturing documentation', completed: false, status: 'PLANNED' }
+      ],
+      resources: [
+        { title: 'Web Development in 2026 — Beginner Starter Guide', provider: 'YouTube (Traversy Media)', category: 'Web Development', cost: 'Free' },
+        { title: 'Data Analytics Complete Roadmap', provider: 'YouTube (Alex The Analyst)', category: 'Data', cost: 'Free' },
+        { title: 'Cybersecurity Fundamentals', provider: 'YouTube (NetworkChuck)', category: 'Cybersecurity', cost: 'Free' },
+        { title: 'Product Design Masterclass Primer', provider: 'YouTube (Figma Academy)', category: 'Product Design', cost: 'Free' }
+      ],
+      auditTrail: [
+        '[SYSTEM] 2026-09-07 10:00:00 — APPLICATION_APPROVED for Sarah Kante by Marcus Vance',
+        '[SYSTEM] 2026-09-07 11:30:00 — WORKSPACE_PROVISIONED for Sarah Kante'
+      ]
+    };
+
+    // Tab Switcher
+    function switchTab(tabId) {
+      const views = ['today', 'apply', 'status', 'checkin', 'progress', 'resources', 'review', 'admin', 'plan'];
+      views.forEach(v => {
+        const el = document.getElementById('view-' + v);
+        if (el) el.classList.add('hidden');
+        
+        const btn = document.getElementById('tab-btn-' + v);
+        if (btn) {
+          btn.classList.remove('text-white', 'bg-zinc-800');
+          btn.classList.add('text-zinc-400');
+        }
+      });
+
+      const targetView = document.getElementById('view-' + tabId);
+      if (targetView) targetView.classList.remove('hidden');
+
+      const targetBtn = document.getElementById('tab-btn-' + tabId);
+      if (targetBtn) {
+        targetBtn.classList.remove('text-zinc-400');
+        targetBtn.classList.add('text-white', 'bg-zinc-800');
+      }
+
+      appState.currentTab = tabId;
+      lucide.createIcons();
+    }
+
+    // Role Switcher
+    function changeRole(role) {
+      appState.role = role;
+      if (role === 'APPLICANT') {
+        switchTab('status');
+      } else if (role === 'ADMIN') {
+        switchTab('admin');
+      } else {
+        switchTab('today');
+      }
+    }
+
+    // Render Tasks
+    function renderTasks() {
+      const container = document.getElementById('today-tasks-container');
+      if (!container) return;
+      
+      container.innerHTML = appState.tasks.map((task, idx) => `
+        <div class="bg-zinc-900/80 rounded-xl p-3.5 border border-zinc-800/80 flex items-center justify-between hover:border-zinc-700 transition">
+          <div class="flex items-center gap-3">
+            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${idx})" class="w-4 h-4 rounded accent-[#18A957] cursor-pointer">
+            <span class="text-xs font-medium ${task.completed ? 'line-through text-zinc-500' : 'text-zinc-200'}">
+              ${task.title}
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded ${task.completed ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400'}">
+              ${task.status}
+            </span>
+          </div>
+        </div>
+      `).join('');
+
+      const completedCount = appState.tasks.filter(t => t.completed).length;
+      const progressText = document.getElementById('today-tasks-progress-text');
+      if (progressText) {
+        progressText.innerText = `${completedCount} of ${appState.tasks.length} tasks completed`;
+      }
+      lucide.createIcons();
+    }
+
+    function toggleTask(idx) {
+      appState.tasks[idx].completed = !appState.tasks[idx].completed;
+      appState.tasks[idx].status = appState.tasks[idx].completed ? 'COMPLETED' : 'PLANNED';
+      renderTasks();
+    }
+
+    function openAddTaskModal() {
+      const title = prompt("Enter task title for today:");
+      if (title) {
+        appState.tasks.push({ id: 't-' + Date.now(), title, completed: false, status: 'PLANNED' });
+        renderTasks();
+      }
+    }
+
+    // Application Submission
+    function handleApplicationSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('app-fullname').value;
+      const email = document.getElementById('app-email').value;
+      const interest = document.getElementById('app-interest').value;
+      
+      const newApp = {
+        id: 'app-' + Date.now(),
+        userName: name,
+        userEmail: email,
+        whatsappNumber: document.getElementById('app-whatsapp').value,
+        timezone: document.getElementById('app-timezone').value,
+        techStatus: document.getElementById('app-techstatus').value,
+        interest: interest,
+        capacity: document.getElementById('app-capacity').value,
+        why: document.getElementById('app-why').value,
+        score: 90,
+        status: 'SUBMITTED'
+      };
+
+      appState.applications.push(newApp);
+      appState.auditTrail.push(`[SYSTEM] ${new Date().toISOString().replace('T', ' ').substring(0, 19)} — APPLICATION_SUBMITTED by ${name}`);
+      
+      document.getElementById('status-user-name').innerText = name;
+      document.getElementById('status-track-name').innerText = interest;
+      
+      renderAdminQueue();
+      switchTab('status');
+    }
+
+    // Daily Check-in Submission
+    function handleCheckinSubmit(e) {
+      e.preventDefault();
+      const statusText = document.getElementById('today-checkin-status');
+      if (statusText) {
+        statusText.innerHTML = `<span class="text-emerald-400 flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Submitted Today</span>`;
+      }
+      appState.auditTrail.push(`[SYSTEM] ${new Date().toISOString().replace('T', ' ').substring(0, 19)} — CHECKIN_SUBMITTED by Alex Chen`);
+      alert("Check-in submitted successfully! Your streak has been updated.");
+      switchTab('today');
+    }
+
+    function useEmergencyPass() {
+      if (confirm("Record emergency pass for today? (Remaining: 2 of 2)")) {
+        appState.auditTrail.push(`[SYSTEM] ${new Date().toISOString().replace('T', ' ').substring(0, 19)} — EMERGENCY_PASS_USED by Alex Chen`);
+        alert("Emergency pass logged for today.");
+      }
+    }
+
+    function saveReflection() {
+      alert("Reflection answer saved!");
+    }
+
+    // Admin Queue Render
+    function renderAdminQueue() {
+      const container = document.getElementById('admin-apps-list');
+      if (!container) return;
+
+      container.innerHTML = appState.applications.map((app, idx) => `
+        <div class="bg-zinc-900/90 rounded-xl p-5 border border-zinc-800 space-y-3">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
+            <div>
+              <span class="text-sm font-bold text-white">${app.userName}</span>
+              <span class="text-xs text-zinc-400 ml-2">(${app.userEmail})</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">
+                Score: ${app.score}/100
+              </span>
+              <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded font-mono">
+                ${app.status}
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-zinc-300">
+            <div><span class="text-zinc-500">Track:</span> ${app.interest}</div>
+            <div><span class="text-zinc-500">Status:</span> ${app.techStatus}</div>
+            <div><span class="text-zinc-500">Capacity:</span> ${app.capacity}</div>
+            <div><span class="text-zinc-500">Timezone:</span> ${app.timezone}</div>
+          </div>
+
+          <p class="text-xs text-zinc-300 bg-zinc-950/60 p-3 rounded border border-zinc-800/60 font-mono">
+            "${app.why}"
+          </p>
+
+          <div class="flex items-center justify-end gap-2 pt-2">
+            <button onclick="rejectApp(${idx})" class="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-red-400 border border-zinc-700 transition">
+              Reject
+            </button>
+            <button onclick="approveApp(${idx})" class="px-4 py-1.5 text-xs font-semibold rounded bg-[#18A957] hover:bg-[#15944c] text-white shadow-sm transition">
+              Approve & Provision Workspace
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('widget-pending-apps').innerText = appState.applications.length;
+      lucide.createIcons();
+    }
+
+    function approveApp(idx) {
+      const app = appState.applications[idx];
+      appState.members.push({
+        id: 'mem-' + Date.now(),
+        name: app.userName,
+        track: app.interest,
+        goal: `Master ${app.interest}`,
+        streak: 1,
+        completionRate: 100,
+        checkinToday: false,
+        risk: 'Normal',
+        passes: '0 / 2'
+      });
+
+      appState.auditTrail.push(`[ADMIN] ${new Date().toISOString().replace('T', ' ').substring(0, 19)} — APPLICATION_APPROVED & WORKSPACE_CREATED for ${app.userName} by Marcus Vance`);
+      appState.applications.splice(idx, 1);
+      renderAdminQueue();
+      renderAdminMembers();
+      renderAuditTrail();
+      alert(`Application approved! Workspace provisioned for ${app.userName}. Welcome email sent.`);
+    }
+
+    function rejectApp(idx) {
+      const app = appState.applications[idx];
+      appState.auditTrail.push(`[ADMIN] ${new Date().toISOString().replace('T', ' ').substring(0, 19)} — APPLICATION_REJECTED for ${app.userName} by Marcus Vance`);
+      appState.applications.splice(idx, 1);
+      renderAdminQueue();
+      renderAuditTrail();
+    }
+
+    // Admin Members Render
+    function renderAdminMembers() {
+      const tbody = document.getElementById('admin-members-tbody');
+      if (!tbody) return;
+
+      tbody.innerHTML = appState.members.map(m => `
+        <tr class="hover:bg-zinc-900/50 transition">
+          <td class="p-3 font-semibold text-white">${m.name}</td>
+          <td class="p-3 text-zinc-300">${m.track}</td>
+          <td class="p-3 text-zinc-300">${m.goal}</td>
+          <td class="p-3 font-mono font-bold text-emerald-400">${m.streak} d</td>
+          <td class="p-3 font-mono text-zinc-200">${m.completionRate}%</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${m.checkinToday ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+              ${m.checkinToday ? 'Submitted' : 'Pending'}
+            </span>
+          </td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
+              ${m.risk}
+            </span>
+          </td>
+          <td class="p-3">
+            <button onclick="switchTab('today')" class="text-xs text-emerald-400 hover:underline">
+              View Workspace
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Admin Audit Trail Render
+    function renderAuditTrail() {
+      const container = document.getElementById('audit-trail-container');
+      if (!container) return;
+      container.innerHTML = appState.auditTrail.map(line => `<div>${line}</div>`).join('');
+    }
+
+    // Resources Catalog Render
+    function renderResources() {
+      const container = document.getElementById('resources-list-container');
+      if (!container) return;
+
+      container.innerHTML = appState.resources.map(res => `
+        <div class="bg-zinc-900/80 rounded-xl p-5 border border-zinc-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono uppercase text-emerald-400">${res.category}</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">${res.cost}</span>
+          </div>
+          <h3 class="text-sm font-bold text-white">${res.title}</h3>
+          <div class="text-xs text-zinc-400">${res.provider}</div>
+        </div>
+      `).join('');
+    }
+
+    // Initialize Page
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      renderTasks();
+      renderAdminQueue();
+      renderAdminMembers();
+      renderAuditTrail();
+      renderResources();
+    });
+  </script>
+</body>
+</html>

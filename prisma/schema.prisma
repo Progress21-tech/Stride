@@ -1,0 +1,203 @@
+// Prisma schema for Stride Platform
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id               String          @id @default(uuid())
+  email            String          @unique
+  name             String
+  whatsappNumber   String?
+  timezone         String          @default("UTC")
+  role             String          @default("MEMBER") // APPLICANT, MEMBER, ADMIN, SUPER_ADMIN
+  status           String          @default("ACTIVE") // ACTIVE, UNDER_REVIEW, SUSPENDED, WITHDRAWN
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  applications     Application[]
+  goals            Goal[]
+  weeklyPlans      WeeklyPlan[]
+  checkIns         CheckIn[]
+  emergencyPasses  EmergencyPass[]
+  recommendations  Recommendation[]
+  auditEvents      AuditEvent[]
+}
+
+model Application {
+  id                    String    @id @default(uuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentTechStatus     String
+  primaryAreaOfInterest String
+  dailyLearningCapacity String
+  whyAccountabilityNow  String
+  dailyReportsCommitment Boolean @default(true)
+  saturdayCallCommitment Boolean @default(true)
+  emergencyPassAcceptance Boolean @default(true)
+  disciplinePlan        String
+  reflectionAnswer      String?
+  score                 Int       @default(80)
+  status                String    @default("SUBMITTED") // DRAFT, SUBMITTED, UNDER_REVIEW, CLARIFICATION_REQUIRED, APPROVED, REJECTED, WITHDRAWN
+  reviewerId            String?
+  reviewedAt            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Goal {
+  id           String      @id @default(uuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  startDate    DateTime    @default(now())
+  targetDate   DateTime
+  status       String      @default("ACTIVE") // ACTIVE, COMPLETED, PAUSED, CANCELLED
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  milestones   Milestone[]
+  weeklyPlans  WeeklyPlan[]
+}
+
+model Milestone {
+  id           String      @id @default(uuid())
+  goalId       String
+  goal         Goal        @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  title        String
+  targetDate   DateTime
+  status       String      @default("PLANNED") // PLANNED, IN_PROGRESS, COMPLETED
+  order        Int         @default(1)
+  createdAt    DateTime    @default(now())
+
+  weeklyObjectives WeeklyObjective[]
+}
+
+model WeeklyObjective {
+  id           String      @id @default(uuid())
+  milestoneId  String
+  milestone    Milestone   @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  title        String
+  status       String      @default("PLANNED") // PLANNED, COMPLETED
+  createdAt    DateTime    @default(now())
+
+  tasks        Task[]
+}
+
+model WeeklyPlan {
+  id           String      @id @default(uuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goalId       String
+  goal         Goal        @relation(fields: [goalId], references: [id])
+  weekStart    DateTime
+  status       String      @default("ACTIVE") // ACTIVE, REVIEWED, COMPLETED
+  createdAt    DateTime    @default(now())
+
+  tasks        Task[]
+}
+
+model Task {
+  id               String           @id @default(uuid())
+  userId           String
+  weeklyPlanId     String?
+  weeklyPlan       WeeklyPlan?      @relation(fields: [weeklyPlanId], references: [id], onDelete: SetNull)
+  weeklyObjectiveId String?
+  weeklyObjective  WeeklyObjective? @relation(fields: [weeklyObjectiveId], references: [id], onDelete: SetNull)
+  title            String
+  dueDate          DateTime
+  status           String           @default("PLANNED") // PLANNED, TODAY, COMPLETED, PARTIALLY_COMPLETED, RESCHEDULED, MISSED, CANCELLED
+  completedAt      DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model CheckIn {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date             String   // YYYY-MM-DD
+  completionStatus String   // YES, PARTIAL, NO, EMERGENCY_PASS
+  learnings        String
+  completedWork    String
+  learningTimeMinutes Int   @default(0)
+  blockers         String?
+  nextPriority     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model EmergencyPass {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month       String   // YYYY-MM
+  usedAt      DateTime @default(now())
+  reason      String?
+  approvedBy  String?
+}
+
+model Resource {
+  id          String   @id @default(uuid())
+  title       String
+  url         String
+  provider    String
+  category    String   // Data, Web Development, Cybersecurity, Product Design, General Intro
+  level       String   @default("Beginner")
+  duration    String?
+  whyRecommended String?
+  cost        String   @default("Free")
+  active      Boolean  @default(true)
+  isIntroVideo Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recommendations Recommendation[]
+}
+
+model Recommendation {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  reason     String
+  createdAt  DateTime @default(now())
+}
+
+model Meeting {
+  id          String   @id @default(uuid())
+  title       String   @default("Saturday Accountability Review")
+  meetUrl     String
+  schedule    String   @default("Every Saturday at 4:00 PM UTC")
+  active      Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id           String    @id @default(uuid())
+  userId       String
+  type         String    // APPLICATION_APPROVED, CHECKIN_REMINDER, MISSED_CHECKIN, WEEKLY_REPORT, ADMIN_ALERT
+  channel      String    @default("IN_APP")
+  title        String
+  message      String
+  scheduledAt  DateTime  @default(now())
+  sentAt       DateTime?
+  status       String    @default("SENT") // PENDING, SENT, FAILED
+}
+
+model AuditEvent {
+  id         String   @id @default(uuid())
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  action     String   // APPLICATION_APPROVED, MEMBER_SUSPENDED, RESOURCE_EDITED, RULE_EXCEPTION
+  objectType String   // APPLICATION, MEMBER, RESOURCE, MEETING
+  objectId   String
+  metadata   String?
+  timestamp  DateTime @default(now())
+}
