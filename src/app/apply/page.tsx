@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Send, FileText } from 'lucide-react';
 

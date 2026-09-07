@@ -21,7 +21,7 @@ export default function ProgressPage() {
             <div className="text-3xl font-bold text-emerald-400 mt-1">83%</div>
           </div>
           <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
-            <div className="text-xs text-zinc-400">Self-Reported Learning Time</div>
+            <div class="text-xs text-zinc-400">Self-Reported Learning Time</div>
             <div className="text-3xl font-bold text-white mt-1">8h 40m</div>
           </div>
           <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800">

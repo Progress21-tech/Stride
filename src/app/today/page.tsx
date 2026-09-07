@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Target, CheckCircle2, Flame, ShieldAlert, Plus, Calendar } from 'lucide-react';
+import { Target, CheckCircle2, Flame, ShieldAlert, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TodayPage() {

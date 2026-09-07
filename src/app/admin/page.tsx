@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Shield, Inbox, Users, Scroll } from 'lucide-react';
+import { Shield, Inbox, Users } from 'lucide-react';
 
 export default function AdminPage() {
   const [apps, setApps] = useState([
