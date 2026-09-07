@@ -1,14 +1,13 @@
 -- ============================================================================
--- STRIDE PLATFORM — PRODUCTION SUPABASE / POSTGRESQL SCHEMA
--- Built strictly according to PRD Section 19 (Data Model) & Section 18 (Governance)
--- Compatible directly with Supabase SQL Editor (Uses native gen_random_uuid())
+-- STRIDE PLATFORM — PRODUCTION SUPABASE / POSTGRESQL SCHEMA WITH AUTH SYNC
+-- Compatible with Email/Password & Google OAuth Authentication
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
 -- 1. USERS & PROFILES TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   whatsapp_number TEXT,
@@ -18,6 +17,33 @@ CREATE TABLE IF NOT EXISTS public.users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- ----------------------------------------------------------------------------
+-- AUTOMATIC AUTH USER SYNC TRIGGER (Handles Email/Password + Google OAuth)
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.users (id, email, name, role, status)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', SPLIT_PART(NEW.email, '@', 1)),
+    'APPLICANT',
+    'ACTIVE'
+  )
+  ON CONFLICT (id) DO UPDATE
+  SET email = EXCLUDED.email,
+      updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger execution on auth.users insert
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- ----------------------------------------------------------------------------
 -- 2. APPLICATIONS TABLE
@@ -133,7 +159,7 @@ CREATE TABLE IF NOT EXISTS public.check_ins (
 CREATE TABLE IF NOT EXISTS public.emergency_passes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  month VARCHAR(7) NOT NULL, -- Format: YYYY-MM
+  month VARCHAR(7) NOT NULL,
   used_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   reason TEXT,
   approved_by UUID REFERENCES public.users(id) ON DELETE SET NULL
@@ -210,73 +236,19 @@ CREATE TABLE IF NOT EXISTS public.audit_events (
 );
 
 -- ----------------------------------------------------------------------------
--- INDEXES FOR PERFORMANCE & FAST LOOKUPS
+-- INDEXES & ROW LEVEL SECURITY
 -- ----------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_tasks_user_due ON public.tasks(user_id, due_date);
 CREATE INDEX IF NOT EXISTS idx_checkins_user_date ON public.check_ins(user_id, date);
 CREATE INDEX IF NOT EXISTS idx_applications_status ON public.applications(status);
-CREATE INDEX IF NOT EXISTS idx_audit_events_timestamp ON public.audit_events(timestamp DESC);
 
--- ----------------------------------------------------------------------------
--- ROW LEVEL SECURITY (RLS) POLICIES
--- ----------------------------------------------------------------------------
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.check_ins ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.emergency_passes ENABLE ROW LEVEL SECURITY;
 
--- Allow members to read own profile
 CREATE POLICY "Users can read own profile" ON public.users FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can read own goals" ON public.goals FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can edit own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
 CREATE POLICY "Users can read own tasks" ON public.tasks FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Users can read own check-ins" ON public.check_ins FOR ALL USING (auth.uid() = user_id);
-
--- Admin access policy
-CREATE POLICY "Admins have full access to users" ON public.users FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
-);
-CREATE POLICY "Admins have full access to applications" ON public.applications FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
-);
-
--- ----------------------------------------------------------------------------
--- INITIAL SEED DATA FOR SUPABASE
--- ----------------------------------------------------------------------------
-INSERT INTO public.meetings (id, title, meet_url, schedule, active)
-VALUES (
-  '00000000-0000-0000-0000-000000000001',
-  'Saturday Accountability Review',
-  'https://meet.google.com/stride-saturday-review',
-  'Every Saturday at 4:00 PM UTC',
-  TRUE
-) ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO public.resources (id, title, url, provider, category, level, duration, why_recommended, cost, is_intro_video)
-VALUES
-(
-  '00000000-0000-0000-0000-000000000101',
-  'Web Development in 2026 — Beginner Starter Guide',
-  'https://www.youtube.com/watch?v=zJSY8tbf_ys',
-  'YouTube (Traversy Media)',
-  'Web Development',
-  'Beginner',
-  '45 mins',
-  'Clear explanation of frontend vs backend, toolchains, and modern execution roadmap.',
-  'Free',
-  TRUE
-),
-(
-  '00000000-0000-0000-0000-000000000102',
-  'Data Analytics Complete Roadmap & Foundations',
-  'https://www.youtube.com/watch?v=r-uOLxNrNk8',
-  'YouTube (Alex The Analyst)',
-  'Data',
-  'Beginner',
-  '35 mins',
-  'Structured overview of SQL, Excel, Tableau, and Python for career switchers.',
-  'Free',
-  TRUE
-)
-ON CONFLICT (id) DO NOTHING;
