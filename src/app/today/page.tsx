@@ -1,29 +1,105 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Target, CheckCircle2, Flame, ShieldAlert, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
+import { getTodayTasks, createDailyTask, updateTaskStatus, calculateUserStreak, useEmergencyPass } from '@/lib/stride-db';
+import { Task } from '@/lib/types';
 
 export default function TodayPage() {
-  const [tasks, setTasks] = useState([
-    { id: '1', title: 'Implement mobile navigation drawer with accessible ARIA attributes', completed: true, status: 'COMPLETED' },
-    { id: '2', title: 'Refactor fetch API handling to include error try/catch boundaries', completed: true, status: 'COMPLETED' },
-    { id: '3', title: 'Write custom hook for window resize breakpoint detection', completed: false, status: 'PLANNED' },
-    { id: '4', title: 'Review JS Event Bubbling vs Capturing documentation', completed: false, status: 'PLANNED' }
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [streak, setStreak] = useState<number>(0);
+  const [passesUsed, setPassesUsed] = useState<number>(0);
+  const [isCheckedInToday, setIsCheckedInToday] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [currentUserId, setCurrentUserId] = useState<string>('');
 
-  const toggleTask = (id: string) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed, status: !t.completed ? 'COMPLETED' : 'PLANNED' } : t));
-  };
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setLoading(false);
+          return;
+        }
 
-  const addTask = () => {
-    const title = prompt('Enter new daily task title:');
-    if (title) {
-      setTasks([...tasks, { id: Date.now().toString(), title, completed: false, status: 'PLANNED' }]);
+        setUserEmail(user.email || '');
+        setCurrentUserId(user.id);
+
+        const fetchedTasks = await getTodayTasks(user.id);
+        setTasks(fetchedTasks);
+
+        const currentStreak = await calculateUserStreak(user.id);
+        setStreak(currentStreak);
+
+        // Check if user checked in today
+        const todayStr = new Date().toISOString().split('T')[0];
+        const { data: chk } = await supabase
+          .from('check_ins')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('date', todayStr)
+          .single();
+
+        if (chk) setIsCheckedInToday(true);
+
+        // Count emergency passes used this month
+        const monthStr = new Date().toISOString().substring(0, 7);
+        const { count } = await supabase
+          .from('emergency_passes')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('month', monthStr);
+
+        setPassesUsed(count || 0);
+      } catch (err) {
+        console.error('Error loading Today workspace data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const handleToggleTask = async (taskId: string, currentStatus: Task['status']) => {
+    const newStatus = currentStatus === 'COMPLETED' ? 'PLANNED' : 'COMPLETED';
+    setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+    try {
+      await updateTaskStatus(taskId, newStatus);
+    } catch (err) {
+      console.error('Failed to update task:', err);
     }
   };
 
-  const completedCount = tasks.filter(t => t.completed).length;
+  const handleAddTask = async () => {
+    const title = prompt('Enter new daily task title:');
+    if (!title || !currentUserId) return;
+
+    try {
+      const newTask = await createDailyTask(currentUserId, title);
+      setTasks([...tasks, newTask]);
+    } catch (err: any) {
+      alert(err.message || 'Failed to add task.');
+    }
+  };
+
+  const handlePass = async () => {
+    if (!currentUserId) return;
+    if (confirm('Record emergency pass for today? (Monthly limit: 2)')) {
+      try {
+        await useEmergencyPass(currentUserId, 'Member self-requested emergency pass');
+        setPassesUsed(passesUsed + 1);
+        alert('Emergency pass logged for today.');
+      } catch (err: any) {
+        alert(err.message || 'Failed to use emergency pass.');
+      }
+    }
+  };
+
+  const completedCount = tasks.filter(t => t.status === 'COMPLETED').length;
+  const completionPercentage = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
 
   return (
     <div className="space-y-6">
@@ -39,7 +115,7 @@ export default function TodayPage() {
               Become a Frontend Developer
             </h1>
             <p className="text-xs text-zinc-400 mt-1 flex items-center gap-3">
-              <span>Week 3 of 12</span>
+              <span>Member: {userEmail || 'Alex Chen'}</span>
               <span>•</span>
               <span className="text-zinc-300">Milestone: JavaScript DOM & Event Loop Mastery</span>
             </p>
@@ -48,7 +124,7 @@ export default function TodayPage() {
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <div className="text-xs text-zinc-400">Daily Deadline</div>
-              <div className="text-xs font-mono font-semibold text-zinc-200">11:59 PM (UTC-5)</div>
+              <div className="text-xs font-mono font-semibold text-zinc-200">11:59 PM (Local)</div>
             </div>
             <Link href="/check-in" className="px-4 py-2.5 text-xs font-semibold rounded-lg bg-[#18A957] hover:bg-[#15944c] text-white shadow-md transition flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4" /> Submit Today's Check-in
@@ -66,15 +142,18 @@ export default function TodayPage() {
             <div className="text-sm font-semibold text-emerald-400 mt-1 flex items-center justify-between">
               <span>{completedCount} of {tasks.length} tasks completed</span>
               <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">
-                {Math.round((completedCount / tasks.length) * 100)}%
+                {completionPercentage}%
               </span>
             </div>
           </div>
           <div className="bg-zinc-900/60 rounded-lg p-3.5 border border-zinc-800/80">
             <div className="text-xs text-zinc-400 font-medium">3. Daily Check-in Status</div>
-            <div className="text-sm font-semibold text-amber-400 mt-1 flex items-center justify-between">
-              <span>Pending submission</span>
-              <span className="text-[11px] text-zinc-400 font-normal">Due in 5h 30m</span>
+            <div className="text-sm font-semibold mt-1 flex items-center justify-between">
+              {isCheckedInToday ? (
+                <span className="text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Submitted Today</span>
+              ) : (
+                <span className="text-amber-400">Pending submission</span>
+              )}
             </div>
           </div>
         </div>
@@ -89,26 +168,37 @@ export default function TodayPage() {
             <h2 className="text-base font-semibold text-white flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Today's Daily Commitments
             </h2>
-            <button onClick={addTask} className="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1">
+            <button onClick={handleAddTask} className="text-xs text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1">
               <Plus className="w-3.5 h-3.5" /> Add Task
             </button>
           </div>
 
           <div className="space-y-2.5">
+            {loading && <div className="text-xs text-zinc-400 py-4 text-center">Loading workspace...</div>}
+            
+            {!loading && tasks.length === 0 && (
+              <div className="bg-zinc-900/40 rounded-xl p-6 text-center text-xs text-zinc-400 border border-zinc-800/60 space-y-2">
+                <div>No daily tasks scheduled for today yet.</div>
+                <button onClick={handleAddTask} className="text-emerald-400 hover:underline font-medium">
+                  + Add your first task for today
+                </button>
+              </div>
+            )}
+
             {tasks.map(task => (
               <div key={task.id} className="bg-zinc-900/80 rounded-xl p-3.5 border border-zinc-800/80 flex items-center justify-between hover:border-zinc-700 transition">
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
-                    checked={task.completed}
-                    onChange={() => toggleTask(task.id)}
+                    checked={task.status === 'COMPLETED'}
+                    onChange={() => handleToggleTask(task.id, task.status)}
                     className="w-4 h-4 rounded accent-[#18A957] cursor-pointer"
                   />
-                  <span className={`text-xs font-medium ${task.completed ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
+                  <span className={`text-xs font-medium ${task.status === 'COMPLETED' ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
                     {task.title}
                   </span>
                 </div>
-                <span className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded ${task.completed ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400'}`}>
+                <span className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded ${task.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400'}`}>
                   {task.status}
                 </span>
               </div>
@@ -128,7 +218,7 @@ export default function TodayPage() {
             
             <div className="flex items-baseline justify-between">
               <div>
-                <span className="text-4xl font-bold text-white tracking-tight">12</span>
+                <span className="text-4xl font-bold text-white tracking-tight">{streak}</span>
                 <span className="text-sm text-zinc-400 ml-1">days streak</span>
               </div>
               <div className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded font-medium">
@@ -144,7 +234,19 @@ export default function TodayPage() {
               </span>
               <span className="text-xs text-zinc-400 font-mono">2 / Month</span>
             </div>
-            <div className="text-xs text-zinc-400">0 of 2 emergency passes used this calendar month.</div>
+            <div className="flex items-center justify-between bg-zinc-900/80 p-3 rounded-lg border border-zinc-800">
+              <div>
+                <div className="text-xs text-zinc-300 font-medium">{passesUsed} of 2 passes used</div>
+                <div className="text-[11px] text-zinc-500">Resets monthly</div>
+              </div>
+              <button
+                onClick={handlePass}
+                disabled={passesUsed >= 2}
+                className="px-2.5 py-1 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-200 border border-zinc-700 transition"
+              >
+                Use Pass
+              </button>
+            </div>
           </div>
         </div>
 

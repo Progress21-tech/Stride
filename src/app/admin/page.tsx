@@ -1,51 +1,75 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Shield, Inbox, Users } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { approveApplication } from '@/lib/stride-db';
 
 export default function AdminPage() {
-  const [apps, setApps] = useState([
-    {
-      id: 'app-101',
-      userName: 'David Okonjo',
-      userEmail: 'david.o@example.com',
-      interest: 'Web Development',
-      techStatus: 'Complete Beginner',
-      capacity: '2 hours/day',
-      timezone: 'Africa/Lagos (UTC+1)',
-      why: 'I have started 3 different Udemy courses in the last 6 months but dropped out after week 2 every single time due to lack of structure and isolation.',
-      score: 92,
-      status: 'SUBMITTED'
-    },
-    {
-      id: 'app-102',
-      userName: 'Amina Yusuf',
-      userEmail: 'amina.yusuf@example.com',
-      interest: 'Data',
-      techStatus: 'Self-Taught',
-      capacity: '1.5 hours/day',
-      timezone: 'Africa/Lagos (UTC+1)',
-      why: 'I am transitioning from accounting into Data Analytics. I need a clear goal hierarchy and weekly review feedback.',
-      score: 88,
-      status: 'UNDER_REVIEW'
+  const [apps, setApps] = useState<any[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
+  const [auditEvents, setAuditEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [adminId, setAdminId] = useState<string>('');
+
+  useEffect(() => {
+    async function loadAdminData() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) setAdminId(user.id);
+
+        // Fetch Applications pending review
+        const { data: fetchedApps } = await supabase
+          .from('applications')
+          .select('*, users(name, email, whatsapp_number, timezone)')
+          .eq('status', 'SUBMITTED')
+          .order('created_at', { ascending: false });
+
+        setApps(fetchedApps || []);
+
+        // Fetch Approved Members
+        const { data: fetchedMembers } = await supabase
+          .from('users')
+          .select('*')
+          .eq('role', 'MEMBER')
+          .order('created_at', { ascending: false });
+
+        setMembers(fetchedMembers || []);
+
+        // Fetch Audit Log
+        const { data: fetchedAudit } = await supabase
+          .from('audit_events')
+          .select('*')
+          .order('timestamp', { ascending: false })
+          .limit(10);
+
+        setAuditEvents(fetchedAudit || []);
+      } catch (err) {
+        console.error('Error loading Admin dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
     }
-  ]);
+    loadAdminData();
+  }, []);
 
-  const [members] = useState([
-    { id: '1', name: 'Alex Chen', track: 'Web Development', goal: 'Become a Frontend Developer', streak: 12, completionRate: 83, checkinToday: false, risk: 'Normal' },
-    { id: '2', name: 'Sarah Kante', track: 'Data Analytics', goal: 'Master SQL & Data Science', streak: 7, completionRate: 90, checkinToday: true, risk: 'Normal' }
-  ]);
-
-  const approveApp = (id: string) => {
-    const target = apps.find(a => a.id === id);
-    if (target) {
-      alert(`Approved application for ${target.userName}! Workspace created & welcome email dispatched.`);
-      setApps(apps.filter(a => a.id !== id));
+  const handleApprove = async (appId: string, name: string) => {
+    try {
+      await approveApplication(appId, adminId || '00000000-0000-0000-0000-000000000000');
+      alert(`Approved application for ${name}! Member workspace provisioned.`);
+      setApps(apps.filter(a => a.id !== appId));
+    } catch (err: any) {
+      alert(err.message || 'Failed to approve application.');
     }
   };
 
-  const rejectApp = (id: string) => {
-    setApps(apps.filter(a => a.id !== id));
+  const handleReject = async (appId: string) => {
+    try {
+      await supabase.from('applications').update({ status: 'REJECTED' }).eq('id', appId);
+      setApps(apps.filter(a => a.id !== appId));
+    } catch (err: any) {
+      alert(err.message || 'Failed to reject application.');
+    }
   };
 
   return (
@@ -59,7 +83,7 @@ export default function AdminPage() {
           <h1 className="text-2xl font-bold text-white tracking-tight">Admin Overview Dashboard</h1>
         </div>
         <div className="text-xs text-zinc-400">
-          Logged as Admin: <span className="text-white font-medium">Marcus Vance</span>
+          Role: <span className="text-white font-medium">Group Admin</span>
         </div>
       </div>
 
@@ -70,16 +94,12 @@ export default function AdminPage() {
           <div className="text-2xl font-bold text-amber-400">{apps.length}</div>
         </div>
         <div className="glass-card rounded-xl p-4 space-y-1">
-          <div className="text-[11px] text-zinc-400">Today's Check-ins</div>
-          <div className="text-2xl font-bold text-emerald-400">1 / 2</div>
+          <div className="text-[11px] text-zinc-400">Active Members</div>
+          <div className="text-2xl font-bold text-emerald-400">{members.length}</div>
         </div>
         <div className="glass-card rounded-xl p-4 space-y-1">
           <div className="text-[11px] text-zinc-400">At-Risk Members</div>
           <div className="text-2xl font-bold text-zinc-200">0</div>
-        </div>
-        <div className="glass-card rounded-xl p-4 space-y-1">
-          <div className="text-[11px] text-zinc-400">Group Completion Rate</div>
-          <div className="text-2xl font-bold text-emerald-400">83%</div>
         </div>
         <div className="glass-card rounded-xl p-4 space-y-1">
           <div className="text-[11px] text-zinc-400">Saturday Review</div>
@@ -88,6 +108,10 @@ export default function AdminPage() {
         <div className="glass-card rounded-xl p-4 space-y-1">
           <div className="text-[11px] text-zinc-400">Passes Used</div>
           <div className="text-2xl font-bold text-zinc-400">0</div>
+        </div>
+        <div className="glass-card rounded-xl p-4 space-y-1">
+          <div className="text-[11px] text-zinc-400">Audit Trace</div>
+          <div className="text-2xl font-bold text-zinc-300">{auditEvents.length}</div>
         </div>
       </div>
 
@@ -98,12 +122,18 @@ export default function AdminPage() {
         </h2>
 
         <div className="space-y-4">
+          {loading && <div className="text-xs text-zinc-400 py-4">Loading queue...</div>}
+
+          {!loading && apps.length === 0 && (
+            <div className="text-xs text-zinc-400 italic py-2">No applications currently pending in queue.</div>
+          )}
+
           {apps.map(app => (
             <div key={app.id} className="bg-zinc-900/90 rounded-xl p-5 border border-zinc-800 space-y-3">
               <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
                 <div>
-                  <span className="text-sm font-bold text-white">{app.userName}</span>
-                  <span className="text-xs text-zinc-400 ml-2">({app.userEmail})</span>
+                  <span className="text-sm font-bold text-white">{app.users?.name || 'Applicant'}</span>
+                  <span className="text-xs text-zinc-400 ml-2">({app.users?.email})</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">
@@ -115,30 +145,34 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-zinc-300">
+                <div><span className="text-zinc-500">Track:</span> {app.primary_area_of_interest}</div>
+                <div><span className="text-zinc-500">Status:</span> {app.current_tech_status}</div>
+                <div><span className="text-zinc-500">Capacity:</span> {app.daily_learning_capacity}</div>
+                <div><span className="text-zinc-500">Timezone:</span> {app.users?.timezone || 'UTC'}</div>
+              </div>
+
               <p className="text-xs text-zinc-300 bg-zinc-950/60 p-3 rounded border border-zinc-800/60 font-mono">
-                "{app.why}"
+                "{app.why_accountability_now}"
               </p>
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button onClick={() => rejectApp(app.id)} className="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-red-400 border border-zinc-700 transition">
+                <button onClick={() => handleReject(app.id)} className="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-red-400 border border-zinc-700 transition">
                   Reject
                 </button>
-                <button onClick={() => approveApp(app.id)} className="px-4 py-1.5 text-xs font-semibold rounded bg-[#18A957] hover:bg-[#15944c] text-white shadow-sm transition">
+                <button onClick={() => handleApprove(app.id, app.users?.name || 'Applicant')} className="px-4 py-1.5 text-xs font-semibold rounded bg-[#18A957] hover:bg-[#15944c] text-white shadow-sm transition">
                   Approve & Provision Workspace
                 </button>
               </div>
             </div>
           ))}
-          {apps.length === 0 && (
-            <div className="text-xs text-zinc-400 italic">No applications currently pending in queue.</div>
-          )}
         </div>
       </div>
 
       {/* Member Directory Table */}
       <div className="glass-card rounded-xl p-6 space-y-4">
         <h2 className="text-base font-semibold text-white flex items-center gap-2">
-          <Users className="w-4 h-4 text-emerald-400" /> Member Directory & Risk Flags
+          <Users className="w-4 h-4 text-emerald-400" /> Member Directory ({members.length})
         </h2>
 
         <div className="overflow-x-auto">
@@ -146,32 +180,24 @@ export default function AdminPage() {
             <thead className="bg-zinc-900/90 text-zinc-400 uppercase font-mono border-b border-zinc-800">
               <tr>
                 <th className="p-3">Member</th>
-                <th className="p-3">Track</th>
-                <th className="p-3">Primary Goal</th>
-                <th className="p-3">Streak</th>
-                <th className="p-3">Completion Rate</th>
-                <th className="p-3">Today Status</th>
-                <th className="p-3">Risk Level</th>
+                <th className="p-3">Email</th>
+                <th className="p-3">Timezone</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Role</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/60">
               {members.map(m => (
                 <tr key={m.id} className="hover:bg-zinc-900/50 transition">
                   <td className="p-3 font-semibold text-white">{m.name}</td>
-                  <td className="p-3 text-zinc-300">{m.track}</td>
-                  <td className="p-3 text-zinc-300">{m.goal}</td>
-                  <td className="p-3 font-mono font-bold text-emerald-400">{m.streak} days</td>
-                  <td className="p-3 font-mono text-zinc-200">{m.completionRate}%</td>
+                  <td className="p-3 text-zinc-300">{m.email}</td>
+                  <td className="p-3 text-zinc-400">{m.timezone}</td>
                   <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${m.checkinToday ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
-                      {m.checkinToday ? 'Submitted' : 'Pending'}
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {m.status}
                     </span>
                   </td>
-                  <td className="p-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">
-                      {m.risk}
-                    </span>
-                  </td>
+                  <td className="p-3 font-mono text-zinc-300">{m.role}</td>
                 </tr>
               ))}
             </tbody>
