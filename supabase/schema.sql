@@ -1,16 +1,14 @@
 -- ============================================================================
 -- STRIDE PLATFORM — PRODUCTION SUPABASE / POSTGRESQL SCHEMA
 -- Built strictly according to PRD Section 19 (Data Model) & Section 18 (Governance)
+-- Compatible directly with Supabase SQL Editor (Uses native gen_random_uuid())
 -- ============================================================================
-
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ----------------------------------------------------------------------------
 -- 1. USERS & PROFILES TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   whatsapp_number TEXT,
@@ -25,7 +23,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- 2. APPLICATIONS TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.applications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   current_tech_status TEXT NOT NULL,
   primary_area_of_interest TEXT NOT NULL,
@@ -48,7 +46,7 @@ CREATE TABLE IF NOT EXISTS public.applications (
 -- 3. GOALS TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.goals (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT,
@@ -63,7 +61,7 @@ CREATE TABLE IF NOT EXISTS public.goals (
 -- 4. MILESTONES TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.milestones (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   goal_id UUID NOT NULL REFERENCES public.goals(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   target_date TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -76,7 +74,7 @@ CREATE TABLE IF NOT EXISTS public.milestones (
 -- 5. WEEKLY OBJECTIVES TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.weekly_objectives (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   milestone_id UUID NOT NULL REFERENCES public.milestones(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'PLANNED' CHECK (status IN ('PLANNED', 'COMPLETED')),
@@ -87,7 +85,7 @@ CREATE TABLE IF NOT EXISTS public.weekly_objectives (
 -- 6. WEEKLY PLANS TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.weekly_plans (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   goal_id UUID NOT NULL REFERENCES public.goals(id) ON DELETE CASCADE,
   week_start DATE NOT NULL,
@@ -99,7 +97,7 @@ CREATE TABLE IF NOT EXISTS public.weekly_plans (
 -- 7. TASKS TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.tasks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   weekly_plan_id UUID REFERENCES public.weekly_plans(id) ON DELETE SET NULL,
   weekly_objective_id UUID REFERENCES public.weekly_objectives(id) ON DELETE SET NULL,
@@ -115,7 +113,7 @@ CREATE TABLE IF NOT EXISTS public.tasks (
 -- 8. CHECK-INS TABLE (1 per member per local date)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.check_ins (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   date DATE NOT NULL,
   completion_status TEXT NOT NULL CHECK (completion_status IN ('YES', 'PARTIAL', 'NO', 'EMERGENCY_PASS')),
@@ -133,7 +131,7 @@ CREATE TABLE IF NOT EXISTS public.check_ins (
 -- 9. EMERGENCY PASSES TABLE (Max 2 per month)
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.emergency_passes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   month VARCHAR(7) NOT NULL, -- Format: YYYY-MM
   used_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -145,7 +143,7 @@ CREATE TABLE IF NOT EXISTS public.emergency_passes (
 -- 10. RESOURCES TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.resources (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   url TEXT NOT NULL,
   provider TEXT NOT NULL,
@@ -164,7 +162,7 @@ CREATE TABLE IF NOT EXISTS public.resources (
 -- 11. RECOMMENDATIONS TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.recommendations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   resource_id UUID NOT NULL REFERENCES public.resources(id) ON DELETE CASCADE,
   reason TEXT NOT NULL,
@@ -175,7 +173,7 @@ CREATE TABLE IF NOT EXISTS public.recommendations (
 -- 12. MEETINGS TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.meetings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL DEFAULT 'Saturday Accountability Review',
   meet_url TEXT NOT NULL,
   schedule TEXT NOT NULL DEFAULT 'Every Saturday at 4:00 PM UTC',
@@ -187,7 +185,7 @@ CREATE TABLE IF NOT EXISTS public.meetings (
 -- 13. NOTIFICATIONS TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.notifications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   type TEXT NOT NULL,
   channel TEXT NOT NULL DEFAULT 'IN_APP',
@@ -202,7 +200,7 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 -- 14. AUDIT EVENTS TABLE
 -- ----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.audit_events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   actor_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   action TEXT NOT NULL,
   object_type TEXT NOT NULL,
@@ -229,13 +227,13 @@ ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.check_ins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.emergency_passes ENABLE ROW LEVEL SECURITY;
 
--- Allow members to view/edit their own data
+-- Allow members to read own profile
 CREATE POLICY "Users can read own profile" ON public.users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can read own goals" ON public.goals FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can read own tasks" ON public.tasks FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY "Users can read own check-ins" ON public.check_ins FOR ALL USING (auth.uid() = user_id);
 
--- Admin access policy (PRD Section 18 governance)
+-- Admin access policy
 CREATE POLICY "Admins have full access to users" ON public.users FOR ALL USING (
   EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
 );
