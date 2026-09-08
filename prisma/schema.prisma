@@ -45,6 +45,7 @@ model Application {
   status                String    @default("SUBMITTED") // DRAFT, SUBMITTED, UNDER_REVIEW, CLARIFICATION_REQUIRED, APPROVED, REJECTED, WITHDRAWN
   reviewerId            String?
   reviewedAt            DateTime?
+  reviewerNotes         String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 }

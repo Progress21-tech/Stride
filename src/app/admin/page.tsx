@@ -1,9 +1,9 @@
-'use client';
+ 'use client';
 
 import { useState, useEffect } from 'react';
-import { Shield, Inbox, Users } from 'lucide-react';
+import { Shield, Inbox, Users, FileText, AlertCircle, CheckCircle, X, HelpCircle, MessageSquare } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { approveApplication } from '@/lib/stride-db';
+import { approveApplication, rejectApplication, requestClarification, fetchApplicationById, fetchAuditEventsForObject } from '@/lib/stride-db';
 
 export default function AdminPage() {
   const [apps, setApps] = useState<any[]>([]);
@@ -11,6 +11,8 @@ export default function AdminPage() {
   const [auditEvents, setAuditEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [adminId, setAdminId] = useState<string>('');
+  const [expandedApp, setExpandedApp] = useState<string | null>(null);
+  const [appHistory, setAppHistory] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
     async function loadAdminData() {
@@ -63,12 +65,27 @@ export default function AdminPage() {
     }
   };
 
-  const handleReject = async (appId: string) => {
+  const handleReject = async (appId: string, name: string) => {
+    const notes = window.prompt(`Reject application for ${name}?\n\nEnter admin notes (optional, press Cancel to abort):`);
+    if (notes === null) return;
     try {
-      await supabase.from('applications').update({ status: 'REJECTED' }).eq('id', appId);
+      await rejectApplication(appId, adminId || '00000000-0000-0000-0000-000000000000', notes || undefined);
+      alert(`Rejected application for ${name}.`);
       setApps(apps.filter(a => a.id !== appId));
     } catch (err: any) {
       alert(err.message || 'Failed to reject application.');
+    }
+  };
+
+  const handleRequestClarification = async (appId: string, name: string) => {
+    const notes = window.prompt(`Request clarification for ${name}?\n\nEnter your question / reason for clarification:`);
+    if (!notes) return;
+    try {
+      await requestClarification(appId, adminId || '00000000-0000-0000-0000-000000000000', notes);
+      alert(`Clarification requested for ${name}. Applicant will be notified.`);
+      setApps(apps.filter(a => a.id !== appId));
+    } catch (err: any) {
+      alert(err.message || 'Failed to request clarification.');
     }
   };
 
