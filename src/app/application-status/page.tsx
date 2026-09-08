@@ -89,6 +89,13 @@ export default function ApplicationStatusPage() {
             <span className="font-semibold">Within 24 Hours</span>
           </div>
         </div>
+
+        <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 text-xs text-amber-600 dark:text-amber-300 flex items-start gap-2.5 mt-2">
+          <HelpCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+          <p>
+            Need help? Contact the group admins at <span className="font-mono underline">admin@stride.tech</span> or message via WhatsApp.
+          </p>
+        </div>
       </div>
 
       {/* PRD Section 9: Introductory Video Orientation */}
