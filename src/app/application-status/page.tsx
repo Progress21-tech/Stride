@@ -110,21 +110,17 @@ export default function ApplicationStatusPage() {
           </p>
         </div>
 
-        {introVideo.youtubeId ? (
-          <div className="aspect-video w-full rounded-xl overflow-hidden border border-[var(--border-color)] bg-black shadow-md">
-            <iframe
-              className="w-full h-full"
-              src={`https://www.youtube-nocookie.com/embed/${introVideo.youtubeId}`}
-              title={introVideo.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        ) : (
-          <div className="flex min-h-48 items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-subtle)] p-6 text-center text-sm text-[var(--text-muted)]">
-            Use the curated YouTube search below to choose the latest orientation for this track.
-          </div>
-        )}
+        <div className="aspect-video w-full rounded-xl overflow-hidden border border-[var(--border-color)] bg-black shadow-md">
+          <iframe
+            className="w-full h-full"
+            src={introVideo.youtubeId
+              ? `https://www.youtube-nocookie.com/embed/${introVideo.youtubeId}`
+              : `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(introVideo.title)}`}
+            title={introVideo.title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
           <div className="text-xs text-[var(--text-muted)] space-y-0.5">

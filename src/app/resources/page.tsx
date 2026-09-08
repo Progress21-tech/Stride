@@ -22,7 +22,24 @@ export default function ResourcesPage() {
               </div>
               <h3 className="text-sm font-bold text-white">{res.title}</h3>
               <div className="text-xs text-zinc-400">{res.provider} • {res.duration}</div>
+              {res.youtubeId || res.url.includes('youtube.com') ? (
+                <div className="aspect-video overflow-hidden rounded-lg border border-zinc-800 bg-black">
+                  <iframe
+                    className="h-full w-full"
+                    src={res.youtubeId
+                      ? `https://www.youtube-nocookie.com/embed/${res.youtubeId}`
+                      : `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(res.title)}`}
+                    title={res.title}
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
               <p className="text-xs text-zinc-300 italic pt-1 border-t border-zinc-800/80">"{res.whyRecommended}"</p>
+              <a href={res.url} target="_blank" rel="noreferrer" className="inline-flex text-xs font-semibold text-emerald-400 hover:underline">
+                Watch on YouTube
+              </a>
             </div>
           ))}
         </div>
