@@ -15,6 +15,7 @@ export default function TodayPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [userEmail, setUserEmail] = useState<string>('');
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [timezone, setTimezone] = useState<string>('UTC');
 
   useEffect(() => {
     async function loadData() {
@@ -28,14 +29,18 @@ export default function TodayPage() {
         setUserEmail(user.email || '');
         setCurrentUserId(user.id);
 
-        const fetchedTasks = await getTodayTasks(user.id);
+        const { data: profile } = await supabase.from('users').select('timezone').eq('id', user.id).single();
+        const userTimezone = profile?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+        setTimezone(userTimezone);
+
+        const fetchedTasks = await getTodayTasks(user.id, userTimezone);
         setTasks(fetchedTasks);
 
-        const currentStreak = await calculateUserStreak(user.id);
+        const currentStreak = await calculateUserStreak(user.id, userTimezone);
         setStreak(currentStreak);
 
         // Check if user checked in today
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: userTimezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
         const { data: chk } = await supabase
           .from('check_ins')
           .select('id')
@@ -46,7 +51,7 @@ export default function TodayPage() {
         if (chk) setIsCheckedInToday(true);
 
         // Count emergency passes used this month
-        const monthStr = new Date().toISOString().substring(0, 7);
+        const monthStr = todayStr.slice(0, 7);
         const { count } = await supabase
           .from('emergency_passes')
           .select('*', { count: 'exact', head: true })
@@ -78,7 +83,7 @@ export default function TodayPage() {
     if (!title || !currentUserId) return;
 
     try {
-      const newTask = await createDailyTask(currentUserId, title);
+      const newTask = await createDailyTask(currentUserId, title, timezone);
       setTasks([...tasks, newTask]);
     } catch (err: any) {
       alert(err.message || 'Failed to add task.');
@@ -89,8 +94,9 @@ export default function TodayPage() {
     if (!currentUserId) return;
     if (confirm('Record emergency pass for today? (Monthly limit: 2)')) {
       try {
-        await useEmergencyPass(currentUserId, 'Member self-requested emergency pass');
+        await useEmergencyPass(currentUserId, 'Member self-requested emergency pass', timezone);
         setPassesUsed(passesUsed + 1);
+        setIsCheckedInToday(true);
         alert('Emergency pass logged for today.');
       } catch (err: any) {
         alert(err.message || 'Failed to use emergency pass.');

@@ -71,7 +71,7 @@ export interface Goal {
   description?: string;
   startDate: string;
   targetDate: string;
-  status: 'ACTIVE' | 'COMPLETED' | 'PAUSED';
+  status: 'ACTIVE' | 'COMPLETED' | 'PAUSED' | 'CANCELLED';
   milestones: Milestone[];
 }
 

@@ -33,11 +33,14 @@ export default function CheckinPage() {
         throw new Error('You must be logged in to submit a daily check-in.');
       }
 
+      const { data: profile } = await supabase.from('users').select('timezone').eq('id', user.id).single();
+      const timezone = profile?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
       if (isPassMode) {
         if (!passReason.trim()) {
           throw new Error('Please provide a brief reason for the emergency pass request.');
         }
-        await useEmergencyPass(user.id, passReason);
+        await useEmergencyPass(user.id, passReason, timezone);
         alert('Emergency pass logged for today. Your attendance is now excused.');
       } else {
         await submitCheckIn({
@@ -48,6 +51,7 @@ export default function CheckinPage() {
           learningTimeMinutes: Number(minutes),
           blockers,
           nextPriority,
+          timezone,
         });
         alert('Daily check-in submitted successfully! Your streak has been updated.');
       }

@@ -1,5 +1,22 @@
 import { supabase } from './supabase';
-import { User, Application, Goal, Task, CheckIn, EmergencyPass, Resource, AuditEvent } from './types';
+import { User, Application, Goal, Milestone, Task, CheckIn, EmergencyPass, Resource, AuditEvent } from './types';
+
+function localDate(timezone = 'UTC') {
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+  } catch {
+    return new Date().toISOString().split('T')[0];
+  }
+}
+
+function localMonth(timezone = 'UTC') {
+  return localDate(timezone).slice(0, 7);
+}
 
 // ============================================================================
 // 1. USER & PROFILE OPERATIONS
@@ -133,8 +150,8 @@ export async function fetchAuditEventsForObject(objectType: string, objectId: st
 // ============================================================================
 // 3. TASKS & GOAL OPERATIONS (PRD Section 13)
 // ============================================================================
-export async function getTodayTasks(userId: string): Promise<Task[]> {
-  const todayStr = new Date().toISOString().split('T')[0];
+export async function getTodayTasks(userId: string, timezone?: string): Promise<Task[]> {
+  const todayStr = localDate(timezone);
   const { data, error } = await supabase
     .from('tasks')
     .select('*')
@@ -154,8 +171,8 @@ export async function getTodayTasks(userId: string): Promise<Task[]> {
   }));
 }
 
-export async function createDailyTask(userId: string, title: string): Promise<Task> {
-  const todayStr = new Date().toISOString().split('T')[0];
+export async function createDailyTask(userId: string, title: string, timezone?: string): Promise<Task> {
+  const todayStr = localDate(timezone);
   const { data, error } = await supabase
     .from('tasks')
     .insert([
@@ -189,6 +206,74 @@ export async function updateTaskStatus(taskId: string, status: Task['status']) {
   if (error) throw error;
 }
 
+export async function getGoals(userId: string): Promise<Goal[]> {
+  const { data, error } = await supabase
+    .from('goals')
+    .select('*, milestones(*, weekly_objectives(*, tasks(*)))')
+    .eq('user_id', userId)
+    .eq('status', 'ACTIVE')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  return (data || []).map((goal: any) => ({
+    id: goal.id,
+    userId: goal.user_id,
+    title: goal.title,
+    description: goal.description || undefined,
+    startDate: goal.start_date,
+    targetDate: goal.target_date,
+    status: goal.status,
+    milestones: (goal.milestones || [])
+      .sort((a: any, b: any) => a.display_order - b.display_order)
+      .map((milestone: any) => ({
+        id: milestone.id,
+        goalId: milestone.goal_id,
+        title: milestone.title,
+        targetDate: milestone.target_date,
+        status: milestone.status,
+        order: milestone.display_order,
+        weeklyObjectives: (milestone.weekly_objectives || []).map((objective: any) => ({
+          id: objective.id,
+          milestoneId: objective.milestone_id,
+          title: objective.title,
+          status: objective.status,
+          tasks: (objective.tasks || []).map((task: any) => ({
+            id: task.id,
+            userId: task.user_id,
+            weeklyObjectiveId: task.weekly_objective_id || undefined,
+            title: task.title,
+            dueDate: task.due_date,
+            status: task.status,
+            completedAt: task.completed_at || undefined,
+          })),
+        })),
+      })),
+  }));
+}
+
+export async function createGoal(userId: string, title: string, targetDate: string, description?: string): Promise<Goal> {
+  const { data, error } = await supabase
+    .from('goals')
+    .insert({ user_id: userId, title, description: description || null, target_date: targetDate, status: 'ACTIVE' })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return { id: data.id, userId: data.user_id, title: data.title, description: data.description || undefined, startDate: data.start_date, targetDate: data.target_date, status: data.status, milestones: [] };
+}
+
+export async function createMilestone(goalId: string, title: string, targetDate: string, order: number): Promise<Milestone> {
+  const { data, error } = await supabase
+    .from('milestones')
+    .insert({ goal_id: goalId, title, target_date: targetDate, display_order: order })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return { id: data.id, goalId: data.goal_id, title: data.title, targetDate: data.target_date, status: data.status, order: data.display_order, weeklyObjectives: [] };
+}
+
 // ============================================================================
 // 4. DAILY CHECK-IN & STREAK CALCULATOR (PRD Section 14)
 // ============================================================================
@@ -200,8 +285,9 @@ export async function submitCheckIn(payload: {
   learningTimeMinutes: number;
   blockers?: string;
   nextPriority?: string;
+  timezone?: string;
 }): Promise<CheckIn> {
-  const dateStr = new Date().toISOString().split('T')[0];
+  const dateStr = localDate(payload.timezone);
 
   const { data, error } = await supabase
     .from('check_ins')
@@ -244,7 +330,7 @@ export async function submitCheckIn(payload: {
   };
 }
 
-export async function calculateUserStreak(userId: string): Promise<number> {
+export async function calculateUserStreak(userId: string, timezone?: string): Promise<number> {
   const { data, error } = await supabase
     .from('check_ins')
     .select('date, completion_status')
@@ -256,7 +342,7 @@ export async function calculateUserStreak(userId: string): Promise<number> {
 
   const dates = data.map((d) => d.date);
   let streak = 0;
-  let currentMs = new Date().getTime();
+  let currentMs = new Date(`${localDate(timezone)}T12:00:00Z`).getTime();
 
   while (true) {
     const dStr = new Date(currentMs).toISOString().split('T')[0];
@@ -274,8 +360,9 @@ export async function calculateUserStreak(userId: string): Promise<number> {
 // ============================================================================
 // 5. EMERGENCY PASSES (PRD Section 14.3 — Max 2 per month)
 // ============================================================================
-export async function useEmergencyPass(userId: string, reason?: string): Promise<boolean> {
-  const monthStr = new Date().toISOString().substring(0, 7);
+export async function useEmergencyPass(userId: string, reason?: string, timezone?: string): Promise<boolean> {
+  const monthStr = localMonth(timezone);
+  const dateStr = localDate(timezone);
 
   // Count passes used this month
   const { count, error: countErr } = await supabase
@@ -302,6 +389,20 @@ export async function useEmergencyPass(userId: string, reason?: string): Promise
     .single();
 
   if (error) throw error;
+
+  const { error: checkInError } = await supabase
+    .from('check_ins')
+    .upsert({
+      user_id: userId,
+      date: dateStr,
+      completion_status: 'EMERGENCY_PASS',
+      learnings: 'Emergency pass used',
+      completed_work: 'Excused for an emergency',
+      learning_time_minutes: 0,
+      blockers: reason || null,
+    }, { onConflict: 'user_id,date' });
+
+  if (checkInError) throw checkInError;
 
   await logAuditEvent(userId, 'EMERGENCY_PASS_USED', 'EMERGENCY_PASS', data.id, { month: monthStr });
   return true;
