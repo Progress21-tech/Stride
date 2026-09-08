@@ -61,9 +61,6 @@ export default function ApplyPage() {
     localStorage.setItem('stride_onboarding_draft', JSON.stringify(updated));
   };
 
-  const wordCount = formData.why.trim() ? formData.why.trim().split(/\s+/).length : 0;
-  const isWhyValid = wordCount >= 50;
-
   const canProceed = () => {
     switch (currentStep) {
       case 1: return formData.fullName.trim().length >= 2;
@@ -73,7 +70,7 @@ export default function ApplyPage() {
       case 5: return !!formData.techStatus;
       case 6: return !!formData.interest;
       case 7: return formData.capacity.trim().length > 0;
-      case 8: return isWhyValid;
+      case 8: return true;
       case 9: return formData.commitDaily;
       case 10: return formData.commitSaturday;
       case 11: return formData.commitEmergency;
@@ -291,8 +288,8 @@ export default function ApplyPage() {
                   type="button"
                   onClick={() => updateField('techStatus', status)}
                   className={`p-4 rounded-xl border text-left text-sm font-medium transition flex items-center justify-between ${formData.techStatus === status
-                      ? 'border-[#18A957] bg-[#18A957]/10 text-[#18A957] font-semibold'
-                      : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-main)] hover:border-[#18A957]/50'
+                    ? 'border-[#18A957] bg-[#18A957]/10 text-[#18A957] font-semibold'
+                    : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-main)] hover:border-[#18A957]/50'
                     }`}
                 >
                   <span>{status}</span>
@@ -341,8 +338,8 @@ export default function ApplyPage() {
                   type="button"
                   onClick={() => updateField('interest', track.title)}
                   className={`p-4 rounded-xl border text-left transition space-y-1 ${formData.interest === track.title
-                      ? 'border-[#18A957] bg-[#18A957]/10 text-[var(--text-main)]'
-                      : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-muted)] hover:border-[#18A957]/50'
+                    ? 'border-[#18A957] bg-[#18A957]/10 text-[var(--text-main)]'
+                    : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-muted)] hover:border-[#18A957]/50'
                     }`}
                 >
                   <div className="font-semibold text-sm text-[var(--text-main)] flex items-center justify-between">
@@ -373,8 +370,8 @@ export default function ApplyPage() {
                   type="button"
                   onClick={() => updateField('capacity', cap)}
                   className={`p-3.5 rounded-xl border text-center text-xs font-medium transition ${formData.capacity === cap
-                      ? 'border-[#18A957] bg-[#18A957]/10 text-[#18A957] font-semibold'
-                      : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-main)]'
+                    ? 'border-[#18A957] bg-[#18A957]/10 text-[#18A957] font-semibold'
+                    : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-main)]'
                     }`}
                 >
                   {cap}
@@ -384,19 +381,14 @@ export default function ApplyPage() {
           </div>
         )}
 
-        {/* Step 8: Why Accountability Now (Min 50 Words) */}
+        {/* Step 8: Motivation */}
         {currentStep === 8 && (
           <div className="space-y-6 animate-fadeIn">
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase text-[#18A957] font-semibold">8. Motivation Screening</span>
-                <span className={`text-xs font-mono ${isWhyValid ? 'text-[#18A957]' : 'text-amber-500'}`}>
-                  {wordCount}/50 words minimum
-                </span>
-              </div>
-              <h2 className="text-2xl font-bold text-[var(--text-main)]">Why do you need structured accountability right now?</h2>
+              <span className="text-xs font-mono uppercase text-[#18A957] font-semibold">8. Motivation</span>
+              <h2 className="text-2xl font-bold text-[var(--text-main)]">Why are you pursuing this learning track right now?</h2>
               <p className="text-sm text-[var(--text-muted)]">
-                Explain your previous learning struggles, course abandonment history, or why studying alone has failed you.
+                Share what you want to learn, build, or change. A short, honest answer is enough.
               </p>
             </div>
 
@@ -409,11 +401,6 @@ export default function ApplyPage() {
               className="w-full bg-[var(--bg-subtle)] border border-[var(--border-color)] rounded-xl p-4 text-sm text-[var(--text-main)] focus:outline-none focus:border-[#18A957] transition"
             ></textarea>
 
-            {!isWhyValid && (
-              <div className="text-xs text-amber-500 flex items-center gap-1.5">
-                <AlertCircle className="w-3.5 h-3.5" /> Please write at least 50 words explaining your situation ({50 - wordCount} words remaining).
-              </div>
-            )}
           </div>
         )}
 
@@ -623,8 +610,8 @@ export default function ApplyPage() {
               onClick={handleBack}
               disabled={currentStep === 1}
               className={`px-4 py-2 text-xs font-semibold rounded-lg border border-[var(--border-color)] transition flex items-center gap-1.5 ${currentStep === 1
-                  ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]'
-                  : 'text-[var(--text-main)] hover:bg-[var(--bg-subtle)]'
+                ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]'
+                : 'text-[var(--text-main)] hover:bg-[var(--bg-subtle)]'
                 }`}
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
@@ -635,8 +622,8 @@ export default function ApplyPage() {
               onClick={handleNext}
               disabled={!canProceed()}
               className={`px-6 py-2.5 text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 ${canProceed()
-                  ? 'bg-[#18A957] hover:bg-[#15944c] text-white'
-                  : 'bg-[var(--bg-subtle)] text-[var(--text-muted)] opacity-60 cursor-not-allowed'
+                ? 'bg-[#18A957] hover:bg-[#15944c] text-white'
+                : 'bg-[var(--bg-subtle)] text-[var(--text-muted)] opacity-60 cursor-not-allowed'
                 }`}
             >
               Continue <ArrowRight className="w-3.5 h-3.5" />
