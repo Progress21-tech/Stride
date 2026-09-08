@@ -17,6 +17,7 @@ import {
 import { StrideLogo } from '@/components/StrideLogo';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { RegisterSW } from '@/components/RegisterSW';
 
 export const metadata: Metadata = {
   title: 'STRIDE — Structured Learning Accountability Platform',
@@ -34,8 +35,9 @@ export default function RootLayout({
     <html lang="en" className="light" suppressHydrationWarning>
       <body className="bg-[var(--bg-main)] text-[var(--text-main)] min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-600 dark:selection:text-emerald-400">
         <ThemeProvider>
-          
-          {/* Header Bar */}
+          <RegisterSW />
+           
+           {/* Header Bar */}
           <header className="sticky top-0 z-40 w-full border-b border-[var(--border-color)] bg-[var(--bg-surface)]/90 backdrop-blur-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
               

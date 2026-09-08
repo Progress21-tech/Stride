@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signInWithEmail, signInWithGoogle } from '@/lib/auth-supabase';
 import { Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import { StrideLogo } from '@/components/StrideLogo';
 
 export default function LoginPage() {
   const router = useRouter();
