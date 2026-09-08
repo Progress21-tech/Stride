@@ -1,4 +1,4 @@
-import { Users, Video, ExternalLink, Calendar, MessageSquare, Shield, CheckCircle2 } from 'lucide-react';
+import { Users, Video, ExternalLink, Calendar, MessageSquare } from 'lucide-react';
 import { INITIAL_MEMBERS } from '@/lib/store';
 import Link from 'next/link';
 

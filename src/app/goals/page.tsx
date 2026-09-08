@@ -1,4 +1,4 @@
-import { Target, Calendar, CheckCircle, CircleDot, ChevronRight, Plus } from 'lucide-react';
+import { Target, Calendar, CheckCircle, CircleDot, Plus } from 'lucide-react';
 import { INITIAL_GOALS } from '@/lib/store';
 
 export default function GoalsPage() {

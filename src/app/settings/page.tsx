@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Sun, Moon, Laptop, Bell, User, Shield, LogOut, Mail, Globe } from 'lucide-react';
+import { Settings, Sun, Moon, Laptop, Bell, User, Shield, LogOut, Globe } from 'lucide-react';
 import { signOutUser } from '@/lib/auth-supabase';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
