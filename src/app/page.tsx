@@ -7,9 +7,7 @@ export default function LandingPage() {
       
       {/* Hero Section */}
       <div className="text-center max-w-3xl mx-auto space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
-          <Zap className="w-3.5 h-3.5" /> Structured Learning Accountability Platform
-        </div>
+      
         
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-white">
           Turn your learning goals into <span className="text-[#18A957]">consistent progress</span>.
