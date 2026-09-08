@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
 import { 
@@ -19,6 +20,12 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { RegisterSW } from '@/components/RegisterSW';
 
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   title: 'STRIDE — Structured Learning Accountability Platform',
   description: 'A structured accountability platform for turning learning goals into consistent progress.',
@@ -32,8 +39,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="light" suppressHydrationWarning>
-      <body className="bg-[var(--bg-main)] text-[var(--text-main)] min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-600 dark:selection:text-emerald-400">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className={`bg-[var(--bg-main)] text-[var(--text-main)] min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-600 dark:selection:text-emerald-400`}>
         <ThemeProvider>
           <RegisterSW />
            
