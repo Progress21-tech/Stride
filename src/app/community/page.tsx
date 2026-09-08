@@ -3,8 +3,6 @@ import { INITIAL_MEMBERS } from '@/lib/store';
 import Link from 'next/link';
 
 export default function CommunityPage() {
-  const currentMember = INITIAL_MEMBERS.find((m) => m.role === 'MEMBER');
-
   return (
     <div className="space-y-6">
       <div className="glass-card rounded-xl p-6 sm:p-8 space-y-6">
