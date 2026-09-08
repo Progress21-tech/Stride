@@ -251,6 +251,15 @@ ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.check_ins ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.milestones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.weekly_objectives ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.weekly_plans ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.emergency_passes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.resources ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.recommendations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.meetings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.audit_events ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can read own profile" ON public.users;
 CREATE POLICY "Users can read own profile" ON public.users FOR SELECT USING (auth.uid() = id);
@@ -258,14 +267,65 @@ CREATE POLICY "Users can read own profile" ON public.users FOR SELECT USING (aut
 DROP POLICY IF EXISTS "Users can edit own profile" ON public.users;
 CREATE POLICY "Users can edit own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can create own applications" ON public.applications;
+CREATE POLICY "Users can create own applications" ON public.applications FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can read own applications" ON public.applications;
+CREATE POLICY "Users can read own applications" ON public.applications FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update own pending applications" ON public.applications;
+CREATE POLICY "Users can update own pending applications" ON public.applications FOR UPDATE USING (auth.uid() = user_id AND status IN ('DRAFT', 'SUBMITTED', 'CLARIFICATION_REQUIRED')) WITH CHECK (auth.uid() = user_id);
+
 DROP POLICY IF EXISTS "Users can read own goals" ON public.goals;
 CREATE POLICY "Users can read own goals" ON public.goals FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can create own goals" ON public.goals;
+CREATE POLICY "Users can create own goals" ON public.goals FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update own goals" ON public.goals;
+CREATE POLICY "Users can update own goals" ON public.goals FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete own goals" ON public.goals;
+CREATE POLICY "Users can delete own goals" ON public.goals FOR DELETE USING (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can read own tasks" ON public.tasks;
 CREATE POLICY "Users can read own tasks" ON public.tasks FOR ALL USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can access own milestones" ON public.milestones;
+CREATE POLICY "Users can access own milestones" ON public.milestones FOR ALL USING (EXISTS (SELECT 1 FROM public.goals WHERE goals.id = milestones.goal_id AND goals.user_id = auth.uid())) WITH CHECK (EXISTS (SELECT 1 FROM public.goals WHERE goals.id = milestones.goal_id AND goals.user_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Users can access own weekly objectives" ON public.weekly_objectives;
+CREATE POLICY "Users can access own weekly objectives" ON public.weekly_objectives FOR ALL USING (EXISTS (SELECT 1 FROM public.milestones JOIN public.goals ON goals.id = milestones.goal_id WHERE milestones.id = weekly_objectives.milestone_id AND goals.user_id = auth.uid())) WITH CHECK (EXISTS (SELECT 1 FROM public.milestones JOIN public.goals ON goals.id = milestones.goal_id WHERE milestones.id = weekly_objectives.milestone_id AND goals.user_id = auth.uid()));
+
+DROP POLICY IF EXISTS "Users can access own weekly plans" ON public.weekly_plans;
+CREATE POLICY "Users can access own weekly plans" ON public.weekly_plans FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
 DROP POLICY IF EXISTS "Users can read own check-ins" ON public.check_ins;
 CREATE POLICY "Users can read own check-ins" ON public.check_ins FOR ALL USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can access own emergency passes" ON public.emergency_passes;
+CREATE POLICY "Users can access own emergency passes" ON public.emergency_passes FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Members can view active resources" ON public.resources;
+CREATE POLICY "Members can view active resources" ON public.resources FOR SELECT USING (active = TRUE);
+
+DROP POLICY IF EXISTS "Users can access own recommendations" ON public.recommendations;
+CREATE POLICY "Users can access own recommendations" ON public.recommendations FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Members can view active meetings" ON public.meetings;
+CREATE POLICY "Members can view active meetings" ON public.meetings FOR SELECT USING (active = TRUE);
+
+DROP POLICY IF EXISTS "Users can read own notifications" ON public.notifications;
+CREATE POLICY "Users can read own notifications" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can update own notifications" ON public.notifications;
+CREATE POLICY "Users can update own notifications" ON public.notifications FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can read own audit events" ON public.audit_events;
+CREATE POLICY "Users can read own audit events" ON public.audit_events FOR SELECT USING (auth.uid() = actor_id);
+
+DROP POLICY IF EXISTS "Users can create own audit events" ON public.audit_events;
+CREATE POLICY "Users can create own audit events" ON public.audit_events FOR INSERT WITH CHECK (auth.uid() = actor_id);
 
 DROP POLICY IF EXISTS "Admins have full access to users" ON public.users;
 CREATE POLICY "Admins have full access to users" ON public.users FOR ALL USING (
@@ -276,3 +336,9 @@ DROP POLICY IF EXISTS "Admins have full access to applications" ON public.applic
 CREATE POLICY "Admins have full access to applications" ON public.applications FOR ALL USING (
   EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
 );
+
+DROP POLICY IF EXISTS "Admins have full access to operational data" ON public.milestones;
+CREATE POLICY "Admins have full access to operational data" ON public.milestones FOR ALL USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN')));
+
+DROP POLICY IF EXISTS "Admins have full access to audit events" ON public.audit_events;
+CREATE POLICY "Admins have full access to audit events" ON public.audit_events FOR ALL USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN')));
