@@ -204,6 +204,8 @@ CREATE TABLE IF NOT EXISTS public.resources (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+ALTER TABLE public.resources ADD COLUMN IF NOT EXISTS youtube_id TEXT;
+
 ALTER TABLE public.resources DROP CONSTRAINT IF EXISTS resources_category_check;
 
 -- ----------------------------------------------------------------------------
@@ -227,6 +229,13 @@ CREATE TABLE IF NOT EXISTS public.meetings (
   schedule TEXT NOT NULL DEFAULT 'Every Saturday at 4:00 PM UTC',
   active BOOLEAN NOT NULL DEFAULT TRUE,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.community_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- ----------------------------------------------------------------------------
@@ -281,6 +290,7 @@ ALTER TABLE public.recommendations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.meetings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.community_messages ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can read own profile" ON public.users;
 CREATE POLICY "Users can read own profile" ON public.users FOR SELECT USING (auth.uid() = id);
@@ -335,6 +345,18 @@ CREATE POLICY "Users can access own recommendations" ON public.recommendations F
 
 DROP POLICY IF EXISTS "Members can view active meetings" ON public.meetings;
 CREATE POLICY "Members can view active meetings" ON public.meetings FOR SELECT USING (active = TRUE);
+
+DROP POLICY IF EXISTS "Admins can manage resources" ON public.resources;
+CREATE POLICY "Admins can manage resources" ON public.resources FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can manage meetings" ON public.meetings;
+CREATE POLICY "Admins can manage meetings" ON public.meetings FOR ALL USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Members can read community messages" ON public.community_messages;
+CREATE POLICY "Members can read community messages" ON public.community_messages FOR SELECT TO authenticated USING (TRUE);
+
+DROP POLICY IF EXISTS "Members can post community messages" ON public.community_messages;
+CREATE POLICY "Members can post community messages" ON public.community_messages FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can read own notifications" ON public.notifications;
 CREATE POLICY "Users can read own notifications" ON public.notifications FOR SELECT USING (auth.uid() = user_id);

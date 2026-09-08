@@ -13,6 +13,9 @@ export default function AdminPage() {
   const [adminId, setAdminId] = useState<string>('');
   const [expandedApp, setExpandedApp] = useState<string | null>(null);
   const [appHistory, setAppHistory] = useState<Record<string, any[]>>({});
+  const [loadError, setLoadError] = useState('');
+  const [resourceForm, setResourceForm] = useState({ title: '', category: '', url: '', youtubeId: '' });
+  const [meetingForm, setMeetingForm] = useState({ title: 'Saturday Review', meetUrl: '', schedule: '' });
 
   useEffect(() => {
     async function loadAdminData() {
@@ -21,12 +24,13 @@ export default function AdminPage() {
         if (user) setAdminId(user.id);
 
         // Fetch Applications pending review
-        const { data: fetchedApps } = await supabase
+        const { data: fetchedApps, error: appsError } = await supabase
           .from('applications')
           .select('*, users(name, email, whatsapp_number, timezone)')
           .eq('status', 'SUBMITTED')
           .order('created_at', { ascending: false });
 
+        if (appsError) throw new Error(`Pending applications could not be loaded: ${appsError.message}`);
         setApps(fetchedApps || []);
 
         // Fetch Approved Members
@@ -46,8 +50,9 @@ export default function AdminPage() {
           .limit(10);
 
         setAuditEvents(fetchedAudit || []);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error loading Admin dashboard data:', err);
+        setLoadError(err.message || 'Unable to load admin data.');
       } finally {
         setLoading(false);
       }
@@ -103,10 +108,35 @@ export default function AdminPage() {
     }
   };
 
+  const handleAddResource = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const { error } = await supabase.from('resources').insert({
+      title: resourceForm.title,
+      category: resourceForm.category,
+      url: resourceForm.url,
+      youtube_id: resourceForm.youtubeId || null,
+      provider: 'Admin curated',
+      level: 'Beginner',
+      cost: 'Free',
+      active: true,
+      is_intro_video: Boolean(resourceForm.youtubeId),
+    });
+    if (error) alert(`Resource could not be added: ${error.message}`);
+    else { alert('Resource added for that track.'); setResourceForm({ title: '', category: '', url: '', youtubeId: '' }); }
+  };
+
+  const handleSaveMeeting = async (event: React.FormEvent) => {
+    event.preventDefault();
+    await supabase.from('meetings').update({ active: false }).eq('active', true);
+    const { error } = await supabase.from('meetings').insert({ title: meetingForm.title, meet_url: meetingForm.meetUrl, schedule: meetingForm.schedule, active: true });
+    if (error) alert(`Review link could not be saved: ${error.message}`);
+    else alert('Saturday review link published to members.');
+  };
+
   return (
     <div className="space-y-6">
 
-      <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+      <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
         <div>
           <div className="text-xs font-mono uppercase text-amber-400 flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5" /> Operations Console
@@ -156,21 +186,22 @@ export default function AdminPage() {
         </h2>
 
         <div className="space-y-4">
-          {loading && <div className="text-xs text-zinc-400 py-4">Loading queue...</div>}
+          {loadError && <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-300">{loadError}</div>}
+          {loading && <div className="text-xs text-[var(--text-muted)] py-4">Loading queue...</div>}
 
           {!loading && apps.length === 0 && (
-            <div className="text-xs text-zinc-400 italic py-2">No applications currently pending in queue.</div>
+            <div className="text-xs text-[var(--text-muted)] italic py-2">No applications currently pending in queue.</div>
           )}
 
           {apps.map(app => {
             const isExpanded = expandedApp === app.id;
             const history = appHistory[app.id] || [];
             return (
-              <div key={app.id} className="bg-zinc-900/90 rounded-xl p-5 border border-zinc-800 space-y-3">
-                <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+              <div key={app.id} className="bg-[var(--card-bg)] rounded-xl p-5 border border-[var(--border-color)] space-y-3">
+                <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
                   <div>
-                    <span className="text-sm font-bold text-white">{app.users?.name || 'Applicant'}</span>
-                    <span className="text-xs text-zinc-400 ml-2">({app.users?.email})</span>
+                    <span className="text-sm font-bold text-[var(--text-main)]">{app.users?.name || 'Applicant'}</span>
+                    <span className="text-xs text-[var(--text-muted)] ml-2">({app.users?.email})</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">
@@ -182,14 +213,14 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-zinc-300">
-                  <div><span className="text-zinc-500">Track:</span> {app.primary_area_of_interest}</div>
-                  <div><span className="text-zinc-500">Experience:</span> {app.current_tech_status}</div>
-                  <div><span className="text-zinc-500">Capacity:</span> {app.daily_learning_capacity}</div>
-                  <div><span className="text-zinc-500">Timezone:</span> {app.users?.timezone || 'UTC'}</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-[var(--text-main)]">
+                  <div><span className="text-[var(--text-muted)]">Track:</span> {app.primary_area_of_interest}</div>
+                  <div><span className="text-[var(--text-muted)]">Experience:</span> {app.current_tech_status}</div>
+                  <div><span className="text-[var(--text-muted)]">Capacity:</span> {app.daily_learning_capacity}</div>
+                  <div><span className="text-[var(--text-muted)]">Timezone:</span> {app.users?.timezone || 'UTC'}</div>
                 </div>
 
-                <p className="text-xs text-zinc-300 bg-zinc-950/60 p-3 rounded border border-zinc-800/60 font-mono">
+                <p className="text-xs text-[var(--text-main)] bg-[var(--bg-subtle)] p-3 rounded border border-[var(--border-color)] font-mono">
                   "{app.why_accountability_now}"
                 </p>
 
@@ -277,6 +308,24 @@ export default function AdminPage() {
             );
           })}
         </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <form onSubmit={handleAddResource} className="glass-card space-y-3 rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-[var(--text-main)]">Add a track resource</h2>
+          <input required value={resourceForm.title} onChange={(event) => setResourceForm({ ...resourceForm, title: event.target.value })} placeholder="Resource title" className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 text-sm text-[var(--text-main)]" />
+          <input required value={resourceForm.category} onChange={(event) => setResourceForm({ ...resourceForm, category: event.target.value })} placeholder="Exact onboarding track, e.g. AI Automation" className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 text-sm text-[var(--text-main)]" />
+          <input required type="url" value={resourceForm.url} onChange={(event) => setResourceForm({ ...resourceForm, url: event.target.value })} placeholder="https://..." className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 text-sm text-[var(--text-main)]" />
+          <input value={resourceForm.youtubeId} onChange={(event) => setResourceForm({ ...resourceForm, youtubeId: event.target.value })} placeholder="YouTube video ID (optional)" className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 text-sm text-[var(--text-main)]" />
+          <button className="rounded-lg bg-[#18A957] px-3 py-2 text-xs font-semibold text-white">Publish resource</button>
+        </form>
+        <form onSubmit={handleSaveMeeting} className="glass-card space-y-3 rounded-xl p-5">
+          <h2 className="text-sm font-semibold text-[var(--text-main)]">Publish Saturday review</h2>
+          <input required value={meetingForm.title} onChange={(event) => setMeetingForm({ ...meetingForm, title: event.target.value })} placeholder="Review title" className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 text-sm text-[var(--text-main)]" />
+          <input required type="url" value={meetingForm.meetUrl} onChange={(event) => setMeetingForm({ ...meetingForm, meetUrl: event.target.value })} placeholder="Google Meet or Zoom link" className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 text-sm text-[var(--text-main)]" />
+          <input required value={meetingForm.schedule} onChange={(event) => setMeetingForm({ ...meetingForm, schedule: event.target.value })} placeholder="Every Saturday at 4:00 PM UTC" className="w-full rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 text-sm text-[var(--text-main)]" />
+          <button className="rounded-lg bg-[#18A957] px-3 py-2 text-xs font-semibold text-white">Publish review link</button>
+        </form>
       </div>
 
       {/* Member Directory Table */}
