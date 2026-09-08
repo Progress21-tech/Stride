@@ -1,7 +1,7 @@
- 'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
- import { Shield, Inbox, Users, FileText, CheckCircle, X, HelpCircle } from 'lucide-react';
+import { Shield, Inbox, Users, FileText, CheckCircle, X, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { approveApplication, rejectApplication, requestClarification, fetchAuditEventsForObject } from '@/lib/stride-db';
 
@@ -93,7 +93,7 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      
+
       <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
         <div>
           <div className="text-xs font-mono uppercase text-amber-400 flex items-center gap-1.5">
@@ -151,98 +151,98 @@ export default function AdminPage() {
             const isExpanded = expandedApp === app.id;
             const history = appHistory[app.id] || [];
             return (
-            <div key={app.id} className="bg-zinc-900/90 rounded-xl p-5 border border-zinc-800 space-y-3">
-               <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
-                 <div>
-                   <span className="text-sm font-bold text-white">{app.users?.name || 'Applicant'}</span>
-                   <span className="text-xs text-zinc-400 ml-2">({app.users?.email})</span>
-                 </div>
-                 <div className="flex items-center gap-2">
-                   <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">
-                     Score: {app.score}/100
-                   </span>
-                   <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded font-mono">
-                     {app.status}
-                   </span>
-                 </div>
-               </div>
+              <div key={app.id} className="bg-zinc-900/90 rounded-xl p-5 border border-zinc-800 space-y-3">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+                  <div>
+                    <span className="text-sm font-bold text-white">{app.users?.name || 'Applicant'}</span>
+                    <span className="text-xs text-zinc-400 ml-2">({app.users?.email})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">
+                      Score: {app.score}/100
+                    </span>
+                    <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded font-mono">
+                      {app.status}
+                    </span>
+                  </div>
+                </div>
 
-               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-zinc-300">
-                 <div><span className="text-zinc-500">Track:</span> {app.primary_area_of_interest}</div>
-                 <div><span className="text-zinc-500">Experience:</span> {app.current_tech_status}</div>
-                 <div><span className="text-zinc-500">Capacity:</span> {app.daily_learning_capacity}</div>
-                 <div><span className="text-zinc-500">Timezone:</span> {app.users?.timezone || 'UTC'}</div>
-               </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-zinc-300">
+                  <div><span className="text-zinc-500">Track:</span> {app.primary_area_of_interest}</div>
+                  <div><span className="text-zinc-500">Experience:</span> {app.current_tech_status}</div>
+                  <div><span className="text-zinc-500">Capacity:</span> {app.daily_learning_capacity}</div>
+                  <div><span className="text-zinc-500">Timezone:</span> {app.users?.timezone || 'UTC'}</div>
+                </div>
 
-               <p className="text-xs text-zinc-300 bg-zinc-950/60 p-3 rounded border border-zinc-800/60 font-mono">
-                 "{app.why_accountability_now}"
-               </p>
+                <p className="text-xs text-zinc-300 bg-zinc-950/60 p-3 rounded border border-zinc-800/60 font-mono">
+                  "{app.why_accountability_now}"
+                </p>
 
-               <div className="flex items-center justify-between pt-2">
-                 <button
-                   onClick={() => {
-                     if (isExpanded) {
-                       setExpandedApp(null);
-                     } else {
-                       setExpandedApp(app.id);
-                       fetchAuditEventsForObject('APPLICATION', app.id).then(events => {
-                         setAppHistory(prev => ({ ...prev, [app.id]: events }));
-                       });
-                     }
-                   }}
-                   className="px-2.5 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition flex items-center gap-1"
-                 >
-                   <FileText className="w-3.5 h-3.5" />
-                   {isExpanded ? 'Hide Details' : 'View Full Application'}
-                 </button>
+                <div className="flex items-center justify-between pt-2">
+                  <button
+                    onClick={() => {
+                      if (isExpanded) {
+                        setExpandedApp(null);
+                      } else {
+                        setExpandedApp(app.id);
+                        fetchAuditEventsForObject('APPLICATION', app.id).then(events => {
+                          setAppHistory(prev => ({ ...prev, [app.id]: events }));
+                        });
+                      }
+                    }}
+                    className="px-2.5 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition flex items-center gap-1"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    {isExpanded ? 'Hide Details' : 'View Full Application'}
+                  </button>
 
-                 <div className="flex items-center gap-2">
-                   <button
-                     onClick={() => handleRequestClarification(app.id, app.users?.name || 'Applicant')}
-                     className="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition flex items-center gap-1"
-                   >
-                     <HelpCircle className="w-3.5 h-3.5" /> Request Clarification
-                   </button>
-                   <button
-                     onClick={() => handleReject(app.id, app.users?.name || 'Applicant')}
-                     className="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-red-400 border border-zinc-700 transition"
-                   >
-                     <X className="w-3.5 h-3.5" /> Reject
-                   </button>
-                   <button
-                     onClick={() => handleApprove(app.id, app.users?.name || 'Applicant')}
-                     className="px-4 py-1.5 text-xs font-semibold rounded bg-[#18A957] hover:bg-[#15944c] text-white shadow-sm transition flex items-center gap-1.5"
-                   >
-                     <CheckCircle className="w-3.5 h-3.5" /> Approve & Provision
-                   </button>
-                 </div>
-               </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleRequestClarification(app.id, app.users?.name || 'Applicant')}
+                      className="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition flex items-center gap-1"
+                    >
+                      <HelpCircle className="w-3.5 h-3.5" /> Request Clarification
+                    </button>
+                    <button
+                      onClick={() => handleReject(app.id, app.users?.name || 'Applicant')}
+                      className="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-red-400 border border-zinc-700 transition"
+                    >
+                      <X className="w-3.5 h-3.5" /> Reject
+                    </button>
+                    <button
+                      onClick={() => handleApprove(app.id, app.users?.name || 'Applicant')}
+                      className="px-4 py-1.5 text-xs font-semibold rounded bg-[#18A957] hover:bg-[#15944c] text-white shadow-sm transition flex items-center gap-1.5"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5" /> Approve & Provision
+                    </button>
+                  </div>
+                </div>
 
-               {isExpanded && (
-                 <div className="pt-3 border-t border-zinc-800 space-y-4">
-                   <div className="space-y-2 text-xs">
-                     <div>
-                       <span className="text-zinc-500 font-medium">Discipline Plan:</span>
-                       <p className="text-zinc-300 mt-0.5 font-mono">{app.discipline_plan}</p>
-                     </div>
-                     {app.reflection_answer && (
-                       <div>
-                         <span className="text-zinc-500 font-medium">Reflection:</span>
-                         <p className="text-zinc-300 mt-0.5">{app.reflection_answer}</p>
-                       </div>
-                     )}
-                     {app.reviewer_notes && (
-                       <div>
-                         <span className="text-zinc-500 font-medium">Admin Notes:</span>
-                         <p className="text-zinc-300 mt-0.5">{app.reviewer_notes}</p>
-                       </div>
-                     )}
-                   </div>
+                {isExpanded && (
+                  <div className="pt-3 border-t border-zinc-800 space-y-4">
+                    <div className="space-y-2 text-xs">
+                      <div>
+                        <span className="text-zinc-500 font-medium">Discipline Plan:</span>
+                        <p className="text-zinc-300 mt-0.5 font-mono">{app.discipline_plan}</p>
+                      </div>
+                      {app.reflection_answer && (
+                        <div>
+                          <span className="text-zinc-500 font-medium">Reflection:</span>
+                          <p className="text-zinc-300 mt-0.5">{app.reflection_answer}</p>
+                        </div>
+                      )}
+                      {app.reviewer_notes && (
+                        <div>
+                          <span className="text-zinc-500 font-medium">Admin Notes:</span>
+                          <p className="text-zinc-300 mt-0.5">{app.reviewer_notes}</p>
+                        </div>
+                      )}
+                    </div>
 
-                   {history.length > 0 && (
-                     <div className="space-y-1">
-                       <div className="text-xs font-medium text-zinc-500">Decision History:</div>
-                          {history.map((event) => (
+                    {history.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="text-xs font-medium text-zinc-500">Decision History:</div>
+                        {history.map((event) => (
                           <div key={event.id} className="text-[10px] text-zinc-400 flex items-center gap-2">
                             <span className="font-mono">{new Date(event.timestamp).toLocaleString()}</span>
                             <span>—</span>
@@ -254,13 +254,13 @@ export default function AdminPage() {
                             )}
                           </div>
                         ))}
-                     </div>
-                   )}
-                 </div>
-               )}
-             </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             );
-          })}}
+          })}
         </div>
       </div>
 
