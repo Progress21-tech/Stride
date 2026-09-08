@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, Video, ExternalLink, Calendar, MessageSquare } from 'lucide-react';
+import { Users, Video, ExternalLink, Calendar, MessageSquare, CheckCircle2 } from 'lucide-react';
 import { INITIAL_MEMBERS } from '@/lib/store';
 import Link from 'next/link';
 
@@ -64,7 +64,7 @@ export default function CommunityPage() {
             <div className="border border-[var(--border-color)] rounded-xl p-4 bg-[var(--card-bg)] space-y-3">
               <h2 className="text-sm font-semibold text-[var(--text-main)] flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#18A957]" /> Accountability Partner
-              </div>
+              </h2>
               <p className="text-xs text-[var(--text-muted)]">
                 Partner pairing activates once your first weekly review is complete.
               </p>
