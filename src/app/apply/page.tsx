@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  ArrowLeft, 
-  ArrowRight, 
-  CheckCircle2, 
-  FileText, 
-  ShieldCheck, 
-  Clock, 
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  FileText,
+  ShieldCheck,
+  Clock,
   Sparkles,
   HelpCircle,
   AlertCircle
@@ -32,7 +32,7 @@ export default function ApplyPage() {
     whatsapp: '',
     timezone: 'Africa/Lagos (UTC+1)',
     techStatus: 'Complete Beginner',
-    interest: 'Web Development',
+    interest: 'Frontend Development',
     capacity: '2 hours/day',
     why: '',
     commitDaily: true,
@@ -144,7 +144,7 @@ export default function ApplyPage() {
       // Clear draft & navigate to Waiting Experience
       localStorage.removeItem('stride_onboarding_draft');
       localStorage.setItem('stride_user_application', JSON.stringify(appRecord));
-      
+
       router.push('/application-status');
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to submit application.');
@@ -157,7 +157,7 @@ export default function ApplyPage() {
 
   return (
     <div className="max-w-2xl mx-auto py-4 sm:py-8 space-y-6">
-      
+
       {/* Header & Progress Bar */}
       <div className="space-y-3">
         <div className="flex items-center justify-between text-xs text-[var(--text-muted)] font-mono">
@@ -171,7 +171,7 @@ export default function ApplyPage() {
 
         {/* Dynamic Progress Bar */}
         <div className="w-full h-2 bg-[var(--bg-subtle)] rounded-full overflow-hidden border border-[var(--border-color)]">
-          <div 
+          <div
             className="h-full bg-[#18A957] transition-all duration-300 ease-out"
             style={{ width: `${progressPercent}%` }}
           ></div>
@@ -180,7 +180,7 @@ export default function ApplyPage() {
 
       {/* Main Guided Form Container */}
       <div className="glass-card rounded-2xl p-6 sm:p-10 space-y-8 relative shadow-lg">
-        
+
         {/* Step 1: Full Name */}
         {currentStep === 1 && (
           <div className="space-y-6 animate-fadeIn">
@@ -290,11 +290,10 @@ export default function ApplyPage() {
                   key={status}
                   type="button"
                   onClick={() => updateField('techStatus', status)}
-                  className={`p-4 rounded-xl border text-left text-sm font-medium transition flex items-center justify-between ${
-                    formData.techStatus === status
+                  className={`p-4 rounded-xl border text-left text-sm font-medium transition flex items-center justify-between ${formData.techStatus === status
                       ? 'border-[#18A957] bg-[#18A957]/10 text-[#18A957] font-semibold'
                       : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-main)] hover:border-[#18A957]/50'
-                  }`}
+                    }`}
                 >
                   <span>{status}</span>
                   {formData.techStatus === status && <CheckCircle2 className="w-4 h-4 text-[#18A957]" />}
@@ -316,20 +315,35 @@ export default function ApplyPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
-                { title: 'Web Development', desc: 'Frontend, React, HTML/CSS, Node.js' },
-                { title: 'Data Analytics', desc: 'SQL, Python, Excel, Visualization' },
-                { title: 'Cybersecurity', desc: 'Networking, Threats, Security Labs' },
-                { title: 'Product Design', desc: 'Figma, UX Research, Design Systems' }
+                { title: 'Frontend Development', desc: 'HTML, CSS, JavaScript, React, accessibility' },
+                { title: 'Backend Development', desc: 'APIs, Node.js, Python, databases, authentication' },
+                { title: 'Full-Stack Development', desc: 'Frontend, backend, deployment, and product delivery' },
+                { title: 'Mobile App Development', desc: 'React Native, Flutter, mobile UX, and app stores' },
+                { title: 'Data Analysis', desc: 'SQL, spreadsheets, Python, dashboards, and insights' },
+                { title: 'Data Science', desc: 'Statistics, Python, experimentation, and predictive models' },
+                { title: 'Machine Learning', desc: 'Model training, evaluation, feature engineering, and ML systems' },
+                { title: 'AI Engineering', desc: 'LLM applications, RAG, agents, evaluation, and deployment' },
+                { title: 'AI Automation', desc: 'Workflow automation, APIs, agents, and no-code integrations' },
+                { title: 'Generative AI & LLMs', desc: 'Prompting, fine-tuning, embeddings, and multimodal apps' },
+                { title: 'Cloud Engineering', desc: 'AWS, Azure, containers, networking, and cloud architecture' },
+                { title: 'DevOps & Platform Engineering', desc: 'CI/CD, Docker, Kubernetes, observability, and reliability' },
+                { title: 'Cybersecurity', desc: 'Networking, threat modeling, ethical hacking, and defense' },
+                { title: 'Data Engineering', desc: 'Pipelines, warehousing, Spark, orchestration, and data quality' },
+                { title: 'Database Engineering', desc: 'SQL, data modeling, performance, and distributed databases' },
+                { title: 'Product Design', desc: 'Figma, UX research, prototyping, and design systems' },
+                { title: 'Product Management', desc: 'Discovery, roadmaps, prioritization, and product strategy' },
+                { title: 'QA & Test Automation', desc: 'Testing strategy, Playwright, Cypress, APIs, and quality' },
+                { title: 'Blockchain Development', desc: 'Smart contracts, Web3 apps, wallets, and protocol basics' },
+                { title: 'Game Development', desc: 'Game design, Unity, Unreal, gameplay, and interactive systems' }
               ].map((track) => (
                 <button
                   key={track.title}
                   type="button"
                   onClick={() => updateField('interest', track.title)}
-                  className={`p-4 rounded-xl border text-left transition space-y-1 ${
-                    formData.interest === track.title
+                  className={`p-4 rounded-xl border text-left transition space-y-1 ${formData.interest === track.title
                       ? 'border-[#18A957] bg-[#18A957]/10 text-[var(--text-main)]'
                       : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-muted)] hover:border-[#18A957]/50'
-                  }`}
+                    }`}
                 >
                   <div className="font-semibold text-sm text-[var(--text-main)] flex items-center justify-between">
                     {track.title}
@@ -358,11 +372,10 @@ export default function ApplyPage() {
                   key={cap}
                   type="button"
                   onClick={() => updateField('capacity', cap)}
-                  className={`p-3.5 rounded-xl border text-center text-xs font-medium transition ${
-                    formData.capacity === cap
+                  className={`p-3.5 rounded-xl border text-center text-xs font-medium transition ${formData.capacity === cap
                       ? 'border-[#18A957] bg-[#18A957]/10 text-[#18A957] font-semibold'
                       : 'border-[var(--border-color)] bg-[var(--bg-subtle)] text-[var(--text-main)]'
-                  }`}
+                    }`}
                 >
                   {cap}
                 </button>
@@ -415,7 +428,7 @@ export default function ApplyPage() {
               </p>
             </div>
 
-            <div 
+            <div
               onClick={() => updateField('commitDaily', !formData.commitDaily)}
               className="p-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-subtle)] hover:border-[#18A957] transition cursor-pointer flex items-start gap-4"
             >
@@ -448,7 +461,7 @@ export default function ApplyPage() {
               </p>
             </div>
 
-            <div 
+            <div
               onClick={() => updateField('commitSaturday', !formData.commitSaturday)}
               className="p-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-subtle)] hover:border-[#18A957] transition cursor-pointer flex items-start gap-4"
             >
@@ -481,7 +494,7 @@ export default function ApplyPage() {
               </p>
             </div>
 
-            <div 
+            <div
               onClick={() => updateField('commitEmergency', !formData.commitEmergency)}
               className="p-5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-subtle)] hover:border-[#18A957] transition cursor-pointer flex items-start gap-4"
             >
@@ -609,11 +622,10 @@ export default function ApplyPage() {
               type="button"
               onClick={handleBack}
               disabled={currentStep === 1}
-              className={`px-4 py-2 text-xs font-semibold rounded-lg border border-[var(--border-color)] transition flex items-center gap-1.5 ${
-                currentStep === 1
+              className={`px-4 py-2 text-xs font-semibold rounded-lg border border-[var(--border-color)] transition flex items-center gap-1.5 ${currentStep === 1
                   ? 'opacity-40 cursor-not-allowed text-[var(--text-muted)]'
                   : 'text-[var(--text-main)] hover:bg-[var(--bg-subtle)]'
-              }`}
+                }`}
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
             </button>
@@ -622,11 +634,10 @@ export default function ApplyPage() {
               type="button"
               onClick={handleNext}
               disabled={!canProceed()}
-              className={`px-6 py-2.5 text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 ${
-                canProceed()
+              className={`px-6 py-2.5 text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5 ${canProceed()
                   ? 'bg-[#18A957] hover:bg-[#15944c] text-white'
                   : 'bg-[var(--bg-subtle)] text-[var(--text-muted)] opacity-60 cursor-not-allowed'
-              }`}
+                }`}
             >
               Continue <ArrowRight className="w-3.5 h-3.5" />
             </button>

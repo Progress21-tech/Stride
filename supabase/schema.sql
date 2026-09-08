@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS public.resources (
   title TEXT NOT NULL,
   url TEXT NOT NULL,
   provider TEXT NOT NULL,
-  category TEXT NOT NULL CHECK (category IN ('Web Development', 'Data', 'Cybersecurity', 'Product Design', 'General Intro')),
+  category TEXT NOT NULL,
   level TEXT NOT NULL DEFAULT 'Beginner' CHECK (level IN ('Beginner', 'Intermediate', 'Advanced')),
   duration TEXT,
   why_recommended TEXT,
@@ -184,6 +184,8 @@ CREATE TABLE IF NOT EXISTS public.resources (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+ALTER TABLE public.resources DROP CONSTRAINT IF EXISTS resources_category_check;
 
 -- ----------------------------------------------------------------------------
 -- 11. RECOMMENDATIONS TABLE

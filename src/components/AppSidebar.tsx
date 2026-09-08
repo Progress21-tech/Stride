@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BookOpen, CalendarDays, CheckSquare, ChevronRight, Goal, LayoutPanelLeft, LineChart, Menu, Settings, Shield, Users, Video, X } from 'lucide-react';
 import { StrideLogo } from './StrideLogo';
 import { ThemeToggle } from './ThemeToggle';
+import { supabase } from '@/lib/supabase';
 
 const routes = [
   { href: '/today', label: 'Today', icon: LayoutPanelLeft },
@@ -24,7 +25,22 @@ const publicRoutes = ['/', '/login', '/signup', '/apply', '/application-status']
 export function AppSidebar() {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    async function loadRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
+      setIsAdmin(profile?.role === 'ADMIN' || profile?.role === 'SUPER_ADMIN');
+    }
+
+    loadRole();
+  }, []);
+
   if (publicRoutes.includes(pathname)) return null;
+  const visibleRoutes = isAdmin ? routes : routes.filter((route) => route.href !== '/admin');
 
   const sidebarWidth = expanded ? 'w-60' : 'w-14';
 
@@ -38,7 +54,7 @@ export function AppSidebar() {
         </button>
       </div>
       <nav aria-label="Workspace navigation" className="mt-5 flex flex-1 flex-col gap-1">
-        {routes.map(({ href, label, icon: Icon }) => {
+        {visibleRoutes.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
           return <Link key={href} href={href} title={expanded ? undefined : label} onClick={() => setExpanded(false)} className={`flex items-center gap-3 rounded-xl px-2 py-2.5 text-sm transition ${active ? 'bg-[#18A957]/12 text-[#18A957]' : 'text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-main)]'}`}><Icon className="h-4 w-4 shrink-0" /><span className={`whitespace-nowrap transition-opacity ${expanded ? 'opacity-100' : 'pointer-events-none w-0 overflow-hidden opacity-0'}`}>{label}</span></Link>;
         })}

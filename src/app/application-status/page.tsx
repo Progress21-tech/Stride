@@ -1,14 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { 
-  Clock, 
-  CheckCircle2, 
-  Video, 
-  HelpCircle, 
-  ArrowRight, 
-  BookOpen, 
+import {
+  Clock,
+  CheckCircle2,
+  Video,
+  HelpCircle,
+  BookOpen,
   ShieldAlert,
   MessageSquare
 } from 'lucide-react';
@@ -32,7 +30,7 @@ export default function ApplicationStatusPage() {
       setAppData({
         id: 'app-demo-101',
         userName: 'Applicant',
-        primaryAreaOfInterest: 'Web Development',
+        primaryAreaOfInterest: 'Frontend Development',
         status: 'SUBMITTED',
         dailyLearningCapacity: '2 hours/day',
         createdAt: new Date().toISOString(),
@@ -40,7 +38,7 @@ export default function ApplicationStatusPage() {
     }
   }, []);
 
-  const track = appData?.primaryAreaOfInterest || 'Web Development';
+  const track = appData?.primaryAreaOfInterest || 'Frontend Development';
   const introVideo = INITIAL_RESOURCES.find(
     (r) => r.category === track && r.isIntroVideo
   ) || INITIAL_RESOURCES[0];
@@ -53,7 +51,7 @@ export default function ApplicationStatusPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 py-4">
-      
+
       {/* Header Banner */}
       <div className="glass-card rounded-2xl p-6 sm:p-8 space-y-4 border-l-4 border-l-[#18A957]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -112,16 +110,21 @@ export default function ApplicationStatusPage() {
           </p>
         </div>
 
-        {/* Embedded YouTube Video */}
-        <div className="aspect-video w-full rounded-xl overflow-hidden border border-[var(--border-color)] bg-black shadow-md">
-          <iframe
-            className="w-full h-full"
-            src={`https://www.youtube-nocookie.com/embed/${introVideo.youtubeId || 'zJSY8tbf_ys'}`}
-            title={introVideo.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
-        </div>
+        {introVideo.youtubeId ? (
+          <div className="aspect-video w-full rounded-xl overflow-hidden border border-[var(--border-color)] bg-black shadow-md">
+            <iframe
+              className="w-full h-full"
+              src={`https://www.youtube-nocookie.com/embed/${introVideo.youtubeId}`}
+              title={introVideo.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        ) : (
+          <div className="flex min-h-48 items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-subtle)] p-6 text-center text-sm text-[var(--text-muted)]">
+            Use the curated YouTube search below to choose the latest orientation for this track.
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
           <div className="text-xs text-[var(--text-muted)] space-y-0.5">
@@ -170,19 +173,6 @@ export default function ApplicationStatusPage() {
             </button>
           </div>
         )}
-      </div>
-
-      {/* Admin Demo Shortcut */}
-      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="text-amber-700 dark:text-amber-300">
-          <span className="font-bold">Admin Demo Mode:</span> You can jump into the Admin Console to approve this application and unlock the full workspace.
-        </div>
-        <Link
-          href="/admin"
-          className="px-3.5 py-1.5 font-semibold rounded-lg bg-amber-600 hover:bg-amber-500 text-white transition flex items-center gap-1 shrink-0"
-        >
-          Open Admin Console <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
       </div>
 
     </div>

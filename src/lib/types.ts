@@ -101,7 +101,7 @@ export interface Resource {
   title: string;
   url: string;
   provider: string;
-  category: 'Web Development' | 'Data' | 'Cybersecurity' | 'Product Design' | 'General Intro';
+  category: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   duration?: string;
   whyRecommended?: string;
