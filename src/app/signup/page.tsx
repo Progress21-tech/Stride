@@ -91,6 +91,7 @@ export default function SignupPage() {
                 type="text"
                 id="signup-name"
                 name="name"
+                autoComplete="name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -108,6 +109,7 @@ export default function SignupPage() {
                 type="email"
                 id="signup-email"
                 name="email"
+                autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -125,6 +127,7 @@ export default function SignupPage() {
                 type="password"
                 id="signup-password"
                 name="password"
+                autoComplete="new-password"
                 required
                 minLength={6}
                 value={password}
