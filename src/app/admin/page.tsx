@@ -242,14 +242,18 @@ export default function AdminPage() {
                    {history.length > 0 && (
                      <div className="space-y-1">
                        <div className="text-xs font-medium text-zinc-500">Decision History:</div>
-                       {history.map((event) => (
-                         <div key={event.id} className="text-[10px] text-zinc-400 flex items-center gap-2">
-                           <span className="font-mono">{new Date(event.timestamp).toLocaleString()}</span>
-                           <span>—</span>
-                           <span>{event.action}</span>
-                           {event.metadata && <span className="text-zinc-500">({JSON.parse(event.metadata)})</span>}
-                         </div>
-                       ))}
+                          {history.map((event) => (
+                          <div key={event.id} className="text-[10px] text-zinc-400 flex items-center gap-2">
+                            <span className="font-mono">{new Date(event.timestamp).toLocaleString()}</span>
+                            <span>—</span>
+                            <span>{event.action}</span>
+                            {event.metadata && (
+                              <span className="text-zinc-500">
+                                {(() => { try { return JSON.stringify(JSON.parse(event.metadata)); } catch { return event.metadata; } })()}
+                              </span>
+                            )}
+                          </div>
+                        ))}
                      </div>
                    )}
                  </div>

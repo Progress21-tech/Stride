@@ -48,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={`light ${inter.variable}`} suppressHydrationWarning>
       <body className={`bg-[var(--bg-main)] text-[var(--text-main)] min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-600 dark:selection:text-emerald-400`}>
         <ThemeProvider>
           <RegisterSW />
