@@ -24,6 +24,9 @@ export async function signInWithEmail(email: string, password: string) {
   });
 
   if (error) throw error;
+  if (!data.session) {
+    throw new Error('Login succeeded, but no session was created. Confirm the email address in Supabase Auth, then try again.');
+  }
   return data;
 }
 

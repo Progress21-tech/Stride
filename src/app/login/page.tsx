@@ -20,8 +20,9 @@ export default function LoginPage() {
     setErrorMsg('');
 
     try {
-      await signInWithEmail(email, password);
-      router.push('/today');
+      await signInWithEmail(email.trim(), password);
+      router.replace('/today');
+      router.refresh();
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to sign in. Please check your credentials.');
     } finally {

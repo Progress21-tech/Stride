@@ -32,8 +32,8 @@ export function AppSidebar() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
-      setIsAdmin(profile?.role === 'ADMIN' || profile?.role === 'SUPER_ADMIN');
+      const { data: admin } = await supabase.rpc('is_admin');
+      setIsAdmin(admin === true);
     }
 
     loadRole();

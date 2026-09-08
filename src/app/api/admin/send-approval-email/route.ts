@@ -21,8 +21,8 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
-    if (!profile || !['ADMIN', 'SUPER_ADMIN'].includes(profile.role)) {
+    const { data: isAdmin } = await supabase.rpc('is_admin');
+    if (isAdmin !== true) {
         return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
