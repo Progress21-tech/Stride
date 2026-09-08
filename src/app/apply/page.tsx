@@ -14,7 +14,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { submitApplication } from '@/lib/stride-db';
-import { INITIAL_APPLICATIONS } from '@/lib/store';
+import { supabase } from '@/lib/supabase';
 
 const TOTAL_QUESTIONS = 12;
 
@@ -97,10 +97,13 @@ export default function ApplyPage() {
     setErrorMsg('');
 
     try {
-      // Calculate score & submit
-      const mockUserId = `user-${Date.now()}`;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Your session has expired. Please sign in again before submitting your application.');
+      }
+
       const appRecord = await submitApplication({
-        userId: mockUserId,
+        userId: user.id,
         userName: formData.fullName,
         userEmail: formData.email,
         whatsappNumber: formData.whatsapp,
@@ -113,36 +116,13 @@ export default function ApplyPage() {
         saturdayCallCommitment: formData.commitSaturday,
         emergencyPassAcceptance: formData.commitEmergency,
         disciplinePlan: formData.disciplinePlan,
-      }).catch(() => {
-        // Fallback for offline mode
-        const fallbackApp = {
-          id: `app-${Date.now()}`,
-          userId: mockUserId,
-          userName: formData.fullName,
-          userEmail: formData.email,
-          whatsappNumber: formData.whatsapp,
-          timezone: formData.timezone,
-          currentTechStatus: formData.techStatus,
-          primaryAreaOfInterest: formData.interest,
-          dailyLearningCapacity: formData.capacity,
-          whyAccountabilityNow: formData.why,
-          dailyReportsCommitment: formData.commitDaily,
-          saturdayCallCommitment: formData.commitSaturday,
-          emergencyPassAcceptance: formData.commitEmergency,
-          disciplinePlan: formData.disciplinePlan,
-          score: 88,
-          status: 'SUBMITTED' as const,
-          createdAt: new Date().toISOString(),
-        };
-        INITIAL_APPLICATIONS.unshift(fallbackApp);
-        return fallbackApp;
       });
 
       // Clear draft & navigate to Waiting Experience
       localStorage.removeItem('stride_onboarding_draft');
       localStorage.setItem('stride_user_application', JSON.stringify(appRecord));
 
-      router.push('/application-status');
+      router.replace('/application-status');
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to submit application.');
     } finally {

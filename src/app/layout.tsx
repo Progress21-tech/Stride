@@ -17,10 +17,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <body className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] selection:bg-emerald-500/20">
                 <ThemeProvider>
                     <RegisterSW />
-                    <AppSidebar />
-                    <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 md:pl-24">
-                        {children}
-                    </main>
+                    <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-3 px-3 py-3 sm:px-6 sm:py-6 md:flex-row md:gap-6 lg:px-8">
+                        <AppSidebar />
+                        <main className="min-w-0 flex-1 py-3 md:py-0">{children}</main>
+                    </div>
                 </ThemeProvider>
             </body>
         </html>

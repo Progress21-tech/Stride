@@ -16,6 +16,9 @@ export default function TodayPage() {
   const [userEmail, setUserEmail] = useState<string>('');
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [timezone, setTimezone] = useState<string>('UTC');
+  const [goalTitle, setGoalTitle] = useState('No active goal yet');
+  const [goalDescription, setGoalDescription] = useState('Create your first goal to give today a clear direction.');
+  const [milestoneTitle, setMilestoneTitle] = useState('No milestone set');
 
   useEffect(() => {
     async function loadData() {
@@ -32,6 +35,21 @@ export default function TodayPage() {
         const { data: profile } = await supabase.from('users').select('timezone').eq('id', user.id).single();
         const userTimezone = profile?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
         setTimezone(userTimezone);
+
+        const { data: goal } = await supabase
+          .from('goals')
+          .select('title, description, milestones(title, status, target_date)')
+          .eq('user_id', user.id)
+          .eq('status', 'ACTIVE')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (goal) {
+          setGoalTitle(goal.title);
+          setGoalDescription(goal.description || 'Keep moving through your active goal.');
+          const activeMilestone = goal.milestones?.find((milestone: { status: string }) => milestone.status === 'IN_PROGRESS') || goal.milestones?.[0];
+          if (activeMilestone) setMilestoneTitle(activeMilestone.title);
+        }
 
         const fetchedTasks = await getTodayTasks(user.id, userTimezone);
         setTasks(fetchedTasks);
@@ -112,18 +130,18 @@ export default function TodayPage() {
 
       {/* Top Banner: Primary Goal Focus */}
       <div className="glass-card rounded-xl p-6 relative overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-5">
           <div>
             <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-emerald-400 mb-1">
               <Target className="w-3.5 h-3.5" /> Primary Goal Focus
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-main)] tracking-tight">
-              Become a Frontend Developer
+              {goalTitle}
             </h1>
             <p className="text-xs text-[var(--text-muted)] mt-1 flex items-center gap-3">
               <span>Member: {userEmail || 'Alex Chen'}</span>
               <span>•</span>
-              <span className="text-[var(--text-main)]">Milestone: JavaScript DOM & Event Loop Mastery</span>
+              <span className="text-[var(--text-main)]">Milestone: {milestoneTitle}</span>
             </p>
           </div>
 
@@ -139,12 +157,12 @@ export default function TodayPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-5">
-          <div className="bg-zinc-900/60 rounded-lg p-3.5 border border-zinc-800/80">
-            <div className="text-xs text-zinc-400 font-medium">1. What am I achieving?</div>
-            <div className="text-sm font-semibold text-zinc-100 mt-1">Master Modern React & UI Engineering</div>
+          <div className="bg-[var(--bg-subtle)] rounded-lg p-3.5 border border-[var(--border-color)]">
+            <div className="text-xs text-[var(--text-muted)] font-medium">1. What am I achieving?</div>
+            <div className="text-sm font-semibold text-[var(--text-main)] mt-1">{goalDescription}</div>
           </div>
-          <div className="bg-zinc-900/60 rounded-lg p-3.5 border border-zinc-800/80">
-            <div className="text-xs text-zinc-400 font-medium">2. Today's Execution</div>
+          <div className="bg-[var(--bg-subtle)] rounded-lg p-3.5 border border-[var(--border-color)]">
+            <div className="text-xs text-[var(--text-muted)] font-medium">2. Today's Execution</div>
             <div className="text-sm font-semibold text-emerald-400 mt-1 flex items-center justify-between">
               <span>{completedCount} of {tasks.length} tasks completed</span>
               <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">
@@ -152,8 +170,8 @@ export default function TodayPage() {
               </span>
             </div>
           </div>
-          <div className="bg-zinc-900/60 rounded-lg p-3.5 border border-zinc-800/80">
-            <div className="text-xs text-zinc-400 font-medium">3. Daily Check-in Status</div>
+          <div className="bg-[var(--bg-subtle)] rounded-lg p-3.5 border border-[var(--border-color)]">
+            <div className="text-xs text-[var(--text-muted)] font-medium">3. Daily Check-in Status</div>
             <div className="text-sm font-semibold mt-1 flex items-center justify-between">
               {isCheckedInToday ? (
                 <span className="text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Submitted Today</span>
@@ -192,7 +210,7 @@ export default function TodayPage() {
             )}
 
             {tasks.map(task => (
-              <div key={task.id} className="bg-zinc-900/80 rounded-xl p-3.5 border border-zinc-800/80 flex items-center justify-between hover:border-zinc-700 transition">
+              <div key={task.id} className="bg-[var(--card-bg)] rounded-xl p-3.5 border border-[var(--border-color)] flex items-center justify-between hover:border-[#18A957]/50 transition">
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
@@ -200,11 +218,11 @@ export default function TodayPage() {
                     onChange={() => handleToggleTask(task.id, task.status)}
                     className="w-4 h-4 rounded accent-[#18A957] cursor-pointer"
                   />
-                  <span className={`text-xs font-medium ${task.status === 'COMPLETED' ? 'line-through text-zinc-500' : 'text-zinc-200'}`}>
+                  <span className={`text-xs font-medium ${task.status === 'COMPLETED' ? 'line-through text-[var(--text-muted)]' : 'text-[var(--text-main)]'}`}>
                     {task.title}
                   </span>
                 </div>
-                <span className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded ${task.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-zinc-800 text-zinc-400'}`}>
+                <span className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded ${task.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-[var(--bg-subtle)] text-[var(--text-muted)]'}`}>
                   {task.status}
                 </span>
               </div>
@@ -215,7 +233,7 @@ export default function TodayPage() {
         {/* Sidebar Column */}
         <div className="space-y-4">
           <div className="glass-card rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
+            <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
               <span className="text-xs font-semibold text-[var(--text-main)] uppercase tracking-wider flex items-center gap-1.5">
                 <Flame className="w-4 h-4 text-emerald-400" /> Reporting Streak
               </span>
@@ -236,19 +254,19 @@ export default function TodayPage() {
           <div className="glass-card rounded-xl p-5 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-[var(--text-main)] uppercase tracking-wider flex items-center gap-1.5">
-                <ShieldAlert className="w-4 h-4 text-zinc-400" /> Emergency Passes
+                <ShieldAlert className="w-4 h-4 text-[var(--text-muted)]" /> Emergency Passes
               </span>
               <span className="text-xs text-[var(--text-muted)] font-mono">2 / Month</span>
             </div>
-            <div className="flex items-center justify-between bg-zinc-900/80 p-3 rounded-lg border border-zinc-800">
+            <div className="flex items-center justify-between bg-[var(--bg-subtle)] p-3 rounded-lg border border-[var(--border-color)]">
               <div>
-                <div className="text-xs text-zinc-300 font-medium">{passesUsed} of 2 passes used</div>
-                <div className="text-[11px] text-zinc-500">Resets monthly</div>
+                <div className="text-xs text-[var(--text-main)] font-medium">{passesUsed} of 2 passes used</div>
+                <div className="text-[11px] text-[var(--text-muted)]">Resets monthly</div>
               </div>
               <button
                 onClick={handlePass}
                 disabled={passesUsed >= 2}
-                className="px-2.5 py-1 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-200 border border-zinc-700 transition"
+                className="px-2.5 py-1 text-xs font-medium rounded bg-[var(--bg-surface)] hover:bg-[var(--border-color)] disabled:opacity-50 text-[var(--text-main)] border border-[var(--border-color)] transition"
               >
                 Use Pass
               </button>

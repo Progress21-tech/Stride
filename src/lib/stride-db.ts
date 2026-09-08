@@ -61,7 +61,7 @@ export async function submitApplication(payload: {
 }): Promise<Application> {
   // Score Calculation Rule Engine (PRD Section 10.2)
   let score = 70;
-  if (payload.whyAccountabilityNow.split(' ').length >= 50) score += 15;
+  if (payload.whyAccountabilityNow.trim().length > 0) score += 15;
   if (payload.dailyReportsCommitment && payload.saturdayCallCommitment && payload.emergencyPassAcceptance) score += 15;
 
   const { data, error } = await supabase
@@ -84,7 +84,7 @@ export async function submitApplication(payload: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(`Could not save your application: ${error.message}`);
 
   await logAuditEvent(payload.userId, 'APPLICATION_SUBMITTED', 'APPLICATION', data.id, {
     track: payload.primaryAreaOfInterest,
