@@ -6,24 +6,28 @@
   --bg-main: #F7F7F5;
   --bg-surface: #FFFFFF;
   --bg-subtle: #EFEFEF;
+  --bg-secondary: #E8E8E8;
   --text-main: #111111;
-  --text-muted: #666666;
-  --border-color: #E2E2E0;
+  --text-muted: #777777;
+  --border-color: #E8E8E8;
   --stride-green: #18A957;
   --card-bg: #FFFFFF;
-  --card-border: #E5E5E3;
+  --card-border: #E8E8E8;
+  --focus-ring: #18A957;
 }
 
 html.dark {
   --bg-main: #0A0A0A;
   --bg-surface: #141414;
   --bg-subtle: #1F1F1F;
+  --bg-secondary: #1C1C1C;
   --text-main: #F5F5F5;
-  --text-muted: #A1A1AA;
+  --text-muted: #777777;
   --border-color: #27272A;
   --stride-green: #18A957;
-  --card-bg: rgba(20, 20, 20, 0.85);
+  --card-bg: #141414;
   --card-border: rgba(255, 255, 255, 0.1);
+  --focus-ring: #18A957;
 }
 
 body {
@@ -43,4 +47,17 @@ html.dark .glass-card {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }

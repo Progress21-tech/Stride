@@ -104,6 +104,32 @@ export async function saveReflectionAnswer(applicationId: string, reflectionAnsw
   if (error) throw error;
 }
 
+export async function fetchApplicationById(applicationId: string) {
+  const { data, error } = await supabase
+    .from('applications')
+    .select('*, users(name, email, whatsapp_number, timezone)')
+    .eq('id', applicationId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function fetchAuditEventsForObject(objectType: string, objectId: string) {
+  const { data, error } = await supabase
+    .from('audit_events')
+    .select('*')
+    .eq('object_type', objectType)
+    .eq('object_id', objectId)
+    .order('timestamp', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching audit events:', error);
+    return [];
+  }
+  return data;
+}
+
 // ============================================================================
 // 3. TASKS & GOAL OPERATIONS (PRD Section 13)
 // ============================================================================
