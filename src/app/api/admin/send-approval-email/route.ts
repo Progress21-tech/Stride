@@ -58,9 +58,16 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-        const details = await response.text();
-        console.error('Resend error:', details);
-        return NextResponse.json({ error: 'Email provider rejected the message' }, { status: 502 });
+        const rawDetails = await response.text();
+        let providerMessage = 'Email provider rejected the message';
+        try {
+            const parsed = JSON.parse(rawDetails);
+            providerMessage = parsed.message || parsed.name || providerMessage;
+        } catch {
+            // Keep provider response details out of the client when it is not JSON.
+        }
+        console.error('Resend error:', rawDetails);
+        return NextResponse.json({ error: providerMessage }, { status: 502 });
     }
 
     return NextResponse.json({ sent: true });
