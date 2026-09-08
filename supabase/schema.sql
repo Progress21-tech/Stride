@@ -45,6 +45,25 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- RLS-safe role check used by policies that need to identify administrators.
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.users
+    WHERE id = auth.uid()
+      AND role IN ('ADMIN', 'SUPER_ADMIN')
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated;
+
 -- ----------------------------------------------------------------------------
 -- 2. APPLICATIONS TABLE
 -- ----------------------------------------------------------------------------
@@ -331,16 +350,16 @@ CREATE POLICY "Users can create own audit events" ON public.audit_events FOR INS
 
 DROP POLICY IF EXISTS "Admins have full access to users" ON public.users;
 CREATE POLICY "Admins have full access to users" ON public.users FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
+  public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admins have full access to applications" ON public.applications;
 CREATE POLICY "Admins have full access to applications" ON public.applications FOR ALL USING (
-  EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
+  public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admins have full access to operational data" ON public.milestones;
-CREATE POLICY "Admins have full access to operational data" ON public.milestones FOR ALL USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN')));
+CREATE POLICY "Admins have full access to operational data" ON public.milestones FOR ALL USING (public.is_admin());
 
 DROP POLICY IF EXISTS "Admins have full access to audit events" ON public.audit_events;
-CREATE POLICY "Admins have full access to audit events" ON public.audit_events FOR ALL USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN')));
+CREATE POLICY "Admins have full access to audit events" ON public.audit_events FOR ALL USING (public.is_admin());

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Shield, Inbox, Users, FileText, CheckCircle, X, HelpCircle } from 'lucide-react';
+import { Shield, Inbox, Users, FileText, CheckCircle, X, HelpCircle, LayoutPanelLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { approveApplication, rejectApplication, requestClarification, fetchAuditEventsForObject } from '@/lib/stride-db';
 
@@ -58,7 +58,19 @@ export default function AdminPage() {
   const handleApprove = async (appId: string, name: string) => {
     try {
       await approveApplication(appId, adminId || '00000000-0000-0000-0000-000000000000');
-      alert(`Approved application for ${name}! Member workspace provisioned.`);
+      const approvedApp = apps.find((app) => app.id === appId);
+      if (approvedApp?.users?.email) {
+        const emailResponse = await fetch('/api/admin/send-approval-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: approvedApp.users.email, name }),
+        });
+        if (!emailResponse.ok) {
+          const emailError = await emailResponse.json().catch(() => ({}));
+          throw new Error(`Approved, but email failed: ${emailError.error || 'unknown error'}`);
+        }
+      }
+      alert(`Approved application for ${name}! Member workspace provisioned and approval email sent.`);
       setApps(apps.filter(a => a.id !== appId));
     } catch (err: any) {
       alert(err.message || 'Failed to approve application.');
@@ -101,8 +113,11 @@ export default function AdminPage() {
           </div>
           <h1 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">Admin Overview Dashboard</h1>
         </div>
-        <div className="text-xs text-[var(--text-muted)]">
-          Role: <span className="text-[var(--text-main)] font-medium">Group Admin</span>
+        <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+          <a href="/today" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-color)] px-2.5 py-1.5 text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+            <LayoutPanelLeft className="h-3.5 w-3.5" /> Member view
+          </a>
+          <span>Role: <span className="text-[var(--text-main)] font-medium">Group Admin</span></span>
         </div>
       </div>
 
