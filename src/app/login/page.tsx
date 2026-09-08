@@ -43,9 +43,9 @@ export default function LoginPage() {
   return (
     <div className="max-w-md mx-auto py-10 space-y-6">
       
-      <div className="text-center space-y-2">
-        <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-700 mx-auto flex items-center justify-center font-bold text-xl text-emerald-500 shadow-sm">
-          S
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <StrideLogo size="md" showWordmark={true} />
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight">Sign in to Stride</h1>
         <p className="text-xs text-zinc-400">Enter your credentials to access your accountability workspace.</p>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signUpWithEmail, signInWithGoogle } from '@/lib/auth-supabase';
 import { User as UserIcon, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import { StrideLogo } from '@/components/StrideLogo';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -44,9 +45,9 @@ export default function SignupPage() {
   return (
     <div className="max-w-md mx-auto py-10 space-y-6">
       
-      <div className="text-center space-y-2">
-        <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-700 mx-auto flex items-center justify-center font-bold text-xl text-emerald-500 shadow-sm">
-          S
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <StrideLogo size="md" showWordmark={true} />
         </div>
         <h1 className="text-2xl font-bold text-white tracking-tight">Create your Stride Account</h1>
         <p className="text-xs text-zinc-400">Join serious tech learners building consistent progress.</p>
