@@ -19,7 +19,6 @@ export default function CheckinPage() {
   const [passReason, setPassReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [passesRemaining, setPassesRemaining] = useState<number | null>(null);
 
   const isPassMode = status === 'EMERGENCY_PASS';
 
