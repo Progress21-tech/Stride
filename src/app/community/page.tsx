@@ -1,3 +1,5 @@
+'use client';
+
 import { Users, Video, ExternalLink, Calendar, MessageSquare } from 'lucide-react';
 import { INITIAL_MEMBERS } from '@/lib/store';
 import Link from 'next/link';
