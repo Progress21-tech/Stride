@@ -339,6 +339,36 @@ export async function approveApplication(applicationId: string, reviewerId: stri
   });
 }
 
+export async function rejectApplication(applicationId: string, reviewerId: string, reviewerNotes?: string) {
+  await supabase
+    .from('applications')
+    .update({ status: 'REJECTED', reviewer_id: reviewerId, reviewed_at: new Date().toISOString(), reviewer_notes: reviewerNotes || null })
+    .eq('id', applicationId);
+
+  await logAuditEvent(reviewerId, 'APPLICATION_REJECTED', 'APPLICATION', applicationId, {
+    notes: reviewerNotes,
+  });
+}
+
+export async function requestClarification(
+  applicationId: string,
+  reviewerId: string,
+  reviewerNotes?: string
+) {
+  await supabase
+    .from('applications')
+    .update({
+      status: 'CLARIFICATION_REQUIRED',
+      reviewer_id: reviewerId,
+      reviewer_notes: reviewerNotes || null,
+    })
+    .eq('id', applicationId);
+
+  await logAuditEvent(reviewerId, 'CLARIFICATION_REQUESTED', 'APPLICATION', applicationId, {
+    notes: reviewerNotes,
+  });
+}
+
 export async function logAuditEvent(
   actorId: string,
   action: string,
