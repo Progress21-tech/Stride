@@ -1,9 +1,9 @@
  'use client';
 
 import { useState, useEffect } from 'react';
-import { Shield, Inbox, Users, FileText, AlertCircle, CheckCircle, X, HelpCircle, MessageSquare } from 'lucide-react';
+ import { Shield, Inbox, Users, FileText, CheckCircle, X, HelpCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { approveApplication, rejectApplication, requestClarification, fetchApplicationById, fetchAuditEventsForObject } from '@/lib/stride-db';
+import { approveApplication, rejectApplication, requestClarification, fetchAuditEventsForObject } from '@/lib/stride-db';
 
 export default function AdminPage() {
   const [apps, setApps] = useState<any[]>([]);
