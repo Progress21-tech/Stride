@@ -1,104 +1,24 @@
+'use client';
+
 import Link from 'next/link';
-import { Target, CheckCircle2, Video, ArrowRight, ShieldCheck, Clock, Zap } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, CalendarDays, CheckCircle2, Flame, Target, TrendingUp, Users } from 'lucide-react';
+
+const stories = [
+  { eyebrow: '01 / Set direction', title: 'A goal is more useful when it has a path.', copy: 'Turn the outcome you care about into milestones and weekly objectives you can actually act on.', icon: Target, href: '/goals', action: 'Explore goals', visual: ['Become a frontend developer', 'HTML & CSS foundations', 'JavaScript projects', 'React portfolio'] },
+  { eyebrow: '02 / Plan the work', title: 'Make progress visible before motivation fades.', copy: 'Move from the month to the week to today, with a clear next action rather than an open-ended intention.', icon: CalendarDays, href: '/plan', action: 'See the planner', visual: ['This month', 'This week', 'Today'] },
+  { eyebrow: '03 / Show up', title: 'Consistency gets a place to live.', copy: 'Complete the task, record the check-in, and keep a truthful record of the work behind your progress.', icon: CheckCircle2, href: '/check-in', action: 'View check-ins', visual: ['Build navigation drawer', 'Review async patterns', 'Daily check-in'] },
+  { eyebrow: '04 / See the evidence', title: 'Your effort should add up to something you can see.', copy: 'Track completion, learning time, reporting streaks, and the momentum you are building over time.', icon: TrendingUp, href: '/progress', action: 'View progress', visual: ['84% completion', '6 day reporting streak', '8h 40m learning time'] },
+  { eyebrow: '05 / Review together', title: 'Accountability is better with reflection.', copy: 'Bring your work, blockers, and next steps into a structured weekly review with your group.', icon: Users, href: '/review', action: 'See weekly review', visual: ['What moved forward?', 'What got in the way?', 'What happens next?'] },
+];
 
 export default function LandingPage() {
-  return (
-    <div className="space-y-16 py-6">
-      
-      {/* Hero Section */}
-      <div className="text-center max-w-3xl mx-auto space-y-6">
-      
-        
-        <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-white">
-          Turn your learning goals into <span className="text-[#18A957]">consistent progress</span>.
-        </h1>
-
-        <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
-          People have abundant access to courses and learning resources, but many struggle to turn intention into consistent action. Stride provides the structure, accountability, planning, reporting, and review system around the learning itself.
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-          <Link href="/apply" className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-[#18A957] hover:bg-[#15944c] text-white shadow-lg transition flex items-center justify-center gap-2">
-            Apply to Join Stride <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link href="/today" className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 transition text-center">
-            Explore Member Workspace
-          </Link>
-        </div>
-      </div>
-
-      {/* Core Product Loop Diagram */}
-      <div className="glass-card rounded-2xl p-8 max-w-4xl mx-auto space-y-6">
-        <div className="text-center space-y-1">
-          <div className="text-xs font-mono uppercase text-emerald-400">Operating Blueprint</div>
-          <h2 className="text-xl font-bold text-white">The Core Product Loop</h2>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="bg-zinc-900/80 p-4 rounded-xl border border-zinc-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
-              <Target className="w-4 h-4" />
-            </div>
-            <div className="text-xs font-bold text-white">1. Define Goal</div>
-            <p className="text-[11px] text-zinc-400">Primary goal & milestone hierarchy</p>
-          </div>
-
-          <div className="bg-zinc-900/80 p-4 rounded-xl border border-zinc-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
-              <Clock className="w-4 h-4" />
-            </div>
-            <div className="text-xs font-bold text-white">2. Daily Tasks</div>
-            <p className="text-[11px] text-zinc-400">Actionable daily commitments</p>
-          </div>
-
-          <div className="bg-zinc-900/80 p-4 rounded-xl border border-zinc-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-            <div className="text-xs font-bold text-white">3. Daily Check-in</div>
-            <p className="text-[11px] text-zinc-400">11:59 PM timezone deadline report</p>
-          </div>
-
-          <div className="bg-zinc-900/80 p-4 rounded-xl border border-zinc-800 space-y-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center">
-              <Video className="w-4 h-4" />
-            </div>
-            <div className="text-xs font-bold text-white">4. Saturday Review</div>
-            <p className="text-[11px] text-zinc-400">Mandatory weekly peer call</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Core Principles Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 rounded-xl space-y-2">
-          <div className="text-sm font-bold text-white flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" /> Selective Admission
-          </div>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            Commitment-oriented application form filters for serious learners before admission into member workspaces.
-          </p>
-        </div>
-
-        <div className="glass-card p-6 rounded-xl space-y-2">
-          <div className="text-sm font-bold text-white flex items-center gap-2">
-            <Clock className="w-4 h-4 text-emerald-400" /> Strict Accountability
-          </div>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            11:59 PM daily deadline reporting, max 2 emergency passes per month, and structured recovery workflows.
-          </p>
-        </div>
-
-        <div className="glass-card p-6 rounded-xl space-y-2">
-          <div className="text-sm font-bold text-white flex items-center gap-2">
-            <Video className="w-4 h-4 text-emerald-400" /> Saturday Reviews
-          </div>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            Data-driven weekly review package generation for Google Meet reviews with group leaders and peers.
-          </p>
-        </div>
-      </div>
-
-    </div>
-  );
+  const reducedMotion = useReducedMotion();
+  return <div className="marketing-page -mx-4 -mt-6 overflow-hidden bg-[#f7f7f5] text-[#111111] dark:bg-[#080908] dark:text-[#f5f5f5] sm:-mx-6 lg:-mx-8">
+    <header className="fixed left-1/2 top-4 z-40 flex w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 items-center justify-between rounded-2xl border border-black/10 bg-white/75 px-4 py-2.5 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/75"><Link href="/" className="flex items-center gap-2.5"><img src="/icon-512.png" alt="Stride" className="h-8 w-8 rounded-lg" /><span className="text-sm font-bold tracking-[0.22em]">STRIDE</span></Link><nav className="flex items-center gap-3 text-sm"><Link href="/login" className="hidden text-zinc-600 hover:text-black sm:block dark:text-zinc-300 dark:hover:text-white">Log in</Link><Link href="/signup" className="rounded-full bg-[#18A957] px-4 py-2 font-semibold text-white shadow-sm transition hover:bg-[#15944c]">Sign up</Link></nav></header>
+    <main><section className="relative flex min-h-[92vh] items-center px-4 pt-28 sm:px-6 lg:px-8" aria-labelledby="hero-title"><div aria-hidden="true" className="absolute inset-0 overflow-hidden"><div className="absolute left-[12%] top-[22%] h-2 w-2 rounded-full bg-emerald-500/60" /><div className="absolute right-[18%] top-[30%] h-1.5 w-1.5 rounded-full bg-black/20 dark:bg-white/25" /><div className="absolute bottom-[18%] right-[30%] h-3 w-3 rounded-full border border-emerald-500/30" /></div><div className="relative mx-auto max-w-5xl text-center"><motion.p initial={reducedMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-[#18A957]">Structured learning accountability</motion.p><motion.h1 id="hero-title" initial={reducedMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="text-5xl font-bold tracking-[-0.06em] sm:text-7xl lg:text-8xl">Turn intention<br />into <span className="text-[#18A957]">progress.</span></motion.h1><motion.p initial={reducedMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-zinc-600 dark:text-zinc-300 sm:text-lg">Plan. Show up. Keep moving. Stride turns a meaningful learning goal into a practical plan and helps you stay accountable to it.</motion.p><motion.div initial={reducedMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-9"><Link href="/signup" className="inline-flex items-center gap-2 rounded-full bg-[#18A957] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 hover:bg-[#15944c]">Get started <ArrowRight className="h-4 w-4" /></Link></motion.div></div></section>
+      <section className="relative z-10 mx-4 rounded-t-[2.5rem] border border-black/10 bg-white px-5 py-20 shadow-2xl dark:border-white/10 dark:bg-[#111211] sm:mx-6 sm:px-10 lg:mx-8 lg:px-16" aria-label="How Stride works"><div className="mx-auto max-w-6xl space-y-28">{stories.map((story, index) => { const Icon = story.icon; return <motion.article key={story.title} initial={reducedMotion ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.45 }} className={`grid items-center gap-10 lg:grid-cols-2 ${index % 2 ? 'lg:[&>div:first-child]:order-2' : ''}`}><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#18A957]">{story.eyebrow}</p><h2 className="mt-4 max-w-lg text-3xl font-bold tracking-[-0.04em] sm:text-5xl">{story.title}</h2><p className="mt-5 max-w-md leading-relaxed text-zinc-600 dark:text-zinc-300">{story.copy}</p><Link href={story.href} className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#18A957] hover:underline">{story.action}<ArrowRight className="h-4 w-4" /></Link></div><div className="rounded-3xl border border-black/10 bg-[#f2f3ef] p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900"><div className="mb-6 flex items-center gap-2 text-sm font-semibold"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#18A957]/15 text-[#18A957]"><Icon className="h-4 w-4" /></span>Stride workspace</div><div className="space-y-3">{story.visual.map((item, itemIndex) => <div key={item} className="flex items-center gap-3 rounded-xl border border-black/5 bg-white px-4 py-3 text-sm dark:border-white/10 dark:bg-zinc-950"><span className={`h-2.5 w-2.5 rounded-full ${itemIndex === 0 ? 'bg-[#18A957]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />{item}{index === 2 && itemIndex === 0 && <CheckCircle2 className="ml-auto h-4 w-4 text-[#18A957]" />}</div>)}</div>{index === 3 && <div className="mt-5 flex items-end gap-2"><Flame className="h-5 w-5 text-[#18A957]" /><div className="h-2 flex-1 rounded-full bg-zinc-200 dark:bg-zinc-800"><div className="h-full w-[84%] rounded-full bg-[#18A957]" /></div></div>}</div></motion.article>})}</div></section>
+      <section className="px-5 py-28 text-center sm:px-10"><p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#18A957]">Ready when you are</p><h2 className="mx-auto mt-4 max-w-3xl text-4xl font-bold tracking-[-0.05em] sm:text-6xl">Build a learning practice that keeps moving.</h2><Link href="/signup" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#18A957] px-6 py-3.5 text-sm font-semibold text-white hover:bg-[#15944c]">Get started <ArrowRight className="h-4 w-4" /></Link></section></main>
+    <footer className="border-t border-black/10 px-5 py-16 dark:border-white/10 sm:px-10"><div className="mx-auto max-w-6xl"><div className="text-5xl font-bold tracking-[-0.08em] sm:text-8xl">STRID<span className="text-[#18A957]">E</span></div><p className="mt-3 text-zinc-600 dark:text-zinc-300">Show up. Keep moving.</p><div className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-xs text-zinc-500"><a href="#">Privacy</a><a href="#">Terms</a><a href="mailto:hello@stride.tech">Contact</a><span>© {new Date().getFullYear()} Stride</span></div></div></footer>
+  </div>;
 }

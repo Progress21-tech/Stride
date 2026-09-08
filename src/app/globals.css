@@ -61,3 +61,12 @@ html.dark .glass-card {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
+body:has(.marketing-page) > header,
+body:has(.marketing-page) > footer {
+  display: none;
+}
+
+body:has(.marketing-page) > main {
+  max-width: none;
+  padding: 0;
+}
