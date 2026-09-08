@@ -22,13 +22,11 @@ export default function ResourcesPage() {
               </div>
               <h3 className="text-sm font-bold text-[var(--text-main)]">{res.title}</h3>
               <div className="text-xs text-[var(--text-muted)]">{res.provider} • {res.duration}</div>
-              {(res.youtubeId || res.url.includes('youtube.com')) && (
+              {res.youtubeId && (
                 <div className="aspect-video overflow-hidden rounded-lg border border-[var(--border-color)] bg-black">
                   <iframe
                     className="h-full w-full"
-                    src={res.youtubeId
-                      ? `https://www.youtube-nocookie.com/embed/${res.youtubeId}`
-                      : `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(res.title)}`}
+                    src={`https://www.youtube-nocookie.com/embed/${res.youtubeId}`}
                     title={res.title}
                     loading="lazy"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -37,9 +35,9 @@ export default function ResourcesPage() {
                 </div>
               )}
               <p className="text-xs text-[var(--text-muted)] italic pt-1 border-t border-[var(--border-color)]">"{res.whyRecommended}"</p>
-              <a href={res.url} target="_blank" rel="noreferrer" className="inline-flex text-xs font-semibold text-emerald-400 hover:underline">
-                Watch on YouTube
-              </a>
+              {res.youtubeId && <a href={res.url} target="_blank" rel="noreferrer" className="inline-flex text-xs font-semibold text-emerald-400 hover:underline">
+                Open on YouTube
+              </a>}
             </div>
           ))}
         </div>
