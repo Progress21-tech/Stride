@@ -48,7 +48,7 @@ export default function CommunityPage() {
                   <div className="text-[10px] text-[var(--text-muted)] mt-1">Posted 3 hours ago</div>
                 </div>
                 <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-color)]">
-                  <div className="font-medium text-[var(--text-main)] mb-0.5">{currentMember?.name}</div>
+                  <div className="font-medium text-[var(--text-main)] mb-0.5">Alex Chen (Member)</div>
                   <div className="text-[var(--text-muted)]">
                     Completed all tasks for today. Working on JavaScript async/await DOM project.
                   </div>
