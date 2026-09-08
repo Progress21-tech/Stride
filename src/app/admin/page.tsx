@@ -99,10 +99,10 @@ export default function AdminPage() {
           <div className="text-xs font-mono uppercase text-amber-400 flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5" /> Operations Console
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Admin Overview Dashboard</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">Admin Overview Dashboard</h1>
         </div>
-        <div className="text-xs text-zinc-400">
-          Role: <span className="text-white font-medium">Group Admin</span>
+        <div className="text-xs text-[var(--text-muted)]">
+          Role: <span className="text-[var(--text-main)] font-medium">Group Admin</span>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export default function AdminPage() {
 
       {/* Queue Section */}
       <div className="glass-card rounded-xl p-6 space-y-4">
-        <h2 className="text-base font-semibold text-white flex items-center gap-2">
+        <h2 className="text-base font-semibold text-[var(--text-main)] flex items-center gap-2">
           <Inbox className="w-4 h-4 text-amber-400" /> Applications Awaiting Review ({apps.length})
         </h2>
 
@@ -266,7 +266,7 @@ export default function AdminPage() {
 
       {/* Member Directory Table */}
       <div className="glass-card rounded-xl p-6 space-y-4">
-        <h2 className="text-base font-semibold text-white flex items-center gap-2">
+        <h2 className="text-base font-semibold text-[var(--text-main)] flex items-center gap-2">
           <Users className="w-4 h-4 text-emerald-400" /> Member Directory ({members.length})
         </h2>
 

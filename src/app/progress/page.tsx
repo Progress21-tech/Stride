@@ -8,7 +8,7 @@ export default function ProgressPage() {
           <div className="text-xs font-mono uppercase text-emerald-400 mb-1 flex items-center gap-1.5">
             <TrendingUp className="w-3.5 h-3.5" /> Historical Evidence
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Progress Analytics & Accountability History</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">Progress Analytics & Accountability History</h1>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">

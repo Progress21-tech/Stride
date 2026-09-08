@@ -9,8 +9,8 @@ export default function ReviewPage() {
             <div className="text-xs font-mono uppercase text-emerald-400 mb-1 flex items-center gap-1.5">
               <Video className="w-3.5 h-3.5" /> Weekly Group Review
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">Saturday Review Package</h1>
-            <p className="text-xs text-zinc-400 mt-1">Auto-generated summary for Saturday group review call</p>
+            <h1 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">Saturday Review Package</h1>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Auto-generated summary for Saturday group review call</p>
           </div>
 
           <a href="https://meet.google.com/abc-defg-hij" target="_blank" rel="noreferrer" className="px-4 py-2.5 text-xs font-semibold rounded-lg bg-[#18A957] hover:bg-[#15944c] text-white shadow-md transition flex items-center gap-2">

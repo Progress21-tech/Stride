@@ -8,8 +8,8 @@ export default function PlanPage() {
           <div className="text-xs font-mono uppercase text-emerald-400 mb-1 flex items-center gap-1.5">
             <Target className="w-3.5 h-3.5" /> Structured Planning
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Goal Hierarchy & Execution Roadmap</h1>
-          <p className="text-xs text-zinc-400 mt-1">Primary Goal → Milestones → Weekly Objectives → Daily Tasks</p>
+          <h1 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">Goal Hierarchy & Execution Roadmap</h1>
+          <p className="text-xs text-[var(--text-muted)] mt-1">Primary Goal → Milestones → Weekly Objectives → Daily Tasks</p>
         </div>
 
         <div className="bg-zinc-900/80 rounded-xl p-5 border border-zinc-800 space-y-4">
