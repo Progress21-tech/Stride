@@ -26,7 +26,7 @@ export default function AdminPage() {
         // Fetch Applications pending review
         const { data: fetchedApps, error: appsError } = await supabase
           .from('applications')
-          .select('*, users(name, email, whatsapp_number, timezone)')
+          .select('*, applicant:users!applications_user_id_fkey(name, email, whatsapp_number, timezone)')
           .eq('status', 'SUBMITTED')
           .order('created_at', { ascending: false });
 
@@ -64,11 +64,11 @@ export default function AdminPage() {
     try {
       await approveApplication(appId, adminId || '00000000-0000-0000-0000-000000000000');
       const approvedApp = apps.find((app) => app.id === appId);
-      if (approvedApp?.users?.email) {
+      if (approvedApp?.applicant?.email) {
         const emailResponse = await fetch('/api/admin/send-approval-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: approvedApp.users.email, name }),
+          body: JSON.stringify({ email: approvedApp.applicant.email, name }),
         });
         if (!emailResponse.ok) {
           const emailError = await emailResponse.json().catch(() => ({}));
@@ -154,28 +154,28 @@ export default function AdminPage() {
       {/* Widgets Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <div className="glass-card rounded-xl p-4 space-y-1">
-          <div className="text-[11px] text-zinc-400">Applications Pending</div>
+          <div className="text-[11px] text-[var(--text-muted)]">Applications Pending</div>
           <div className="text-2xl font-bold text-amber-400">{apps.length}</div>
         </div>
         <div className="glass-card rounded-xl p-4 space-y-1">
-          <div className="text-[11px] text-zinc-400">Active Members</div>
+          <div className="text-[11px] text-[var(--text-muted)]">Active Members</div>
           <div className="text-2xl font-bold text-emerald-400">{members.length}</div>
         </div>
         <div className="glass-card rounded-xl p-4 space-y-1">
-          <div className="text-[11px] text-zinc-400">At-Risk Members</div>
-          <div className="text-2xl font-bold text-zinc-200">0</div>
+          <div className="text-[11px] text-[var(--text-muted)]">At-Risk Members</div>
+          <div className="text-2xl font-bold text-[var(--text-main)]">0</div>
         </div>
         <div className="glass-card rounded-xl p-4 space-y-1">
-          <div className="text-[11px] text-zinc-400">Saturday Review</div>
-          <div className="text-sm font-bold text-white mt-1">Ready</div>
+          <div className="text-[11px] text-[var(--text-muted)]">Saturday Review</div>
+          <div className="text-sm font-bold text-[var(--text-main)] mt-1">Ready</div>
         </div>
         <div className="glass-card rounded-xl p-4 space-y-1">
-          <div className="text-[11px] text-zinc-400">Passes Used</div>
-          <div className="text-2xl font-bold text-zinc-400">0</div>
+          <div className="text-[11px] text-[var(--text-muted)]">Passes Used</div>
+          <div className="text-2xl font-bold text-[var(--text-main)]">0</div>
         </div>
         <div className="glass-card rounded-xl p-4 space-y-1">
-          <div className="text-[11px] text-zinc-400">Audit Trace</div>
-          <div className="text-2xl font-bold text-zinc-300">{auditEvents.length}</div>
+          <div className="text-[11px] text-[var(--text-muted)]">Audit Trace</div>
+          <div className="text-2xl font-bold text-[var(--text-main)]">{auditEvents.length}</div>
         </div>
       </div>
 
@@ -200,8 +200,8 @@ export default function AdminPage() {
               <div key={app.id} className="bg-[var(--card-bg)] rounded-xl p-5 border border-[var(--border-color)] space-y-3">
                 <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-2">
                   <div>
-                    <span className="text-sm font-bold text-[var(--text-main)]">{app.users?.name || 'Applicant'}</span>
-                    <span className="text-xs text-[var(--text-muted)] ml-2">({app.users?.email})</span>
+                    <span className="text-sm font-bold text-[var(--text-main)]">{app.applicant?.name || 'Applicant'}</span>
+                    <span className="text-xs text-[var(--text-muted)] ml-2">({app.applicant?.email})</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">
@@ -217,7 +217,7 @@ export default function AdminPage() {
                   <div><span className="text-[var(--text-muted)]">Track:</span> {app.primary_area_of_interest}</div>
                   <div><span className="text-[var(--text-muted)]">Experience:</span> {app.current_tech_status}</div>
                   <div><span className="text-[var(--text-muted)]">Capacity:</span> {app.daily_learning_capacity}</div>
-                  <div><span className="text-[var(--text-muted)]">Timezone:</span> {app.users?.timezone || 'UTC'}</div>
+                  <div><span className="text-[var(--text-muted)]">Timezone:</span> {app.applicant?.timezone || 'UTC'}</div>
                 </div>
 
                 <p className="text-xs text-[var(--text-main)] bg-[var(--bg-subtle)] p-3 rounded border border-[var(--border-color)] font-mono">
@@ -236,7 +236,7 @@ export default function AdminPage() {
                         });
                       }
                     }}
-                    className="px-2.5 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition flex items-center gap-1"
+                    className="px-2.5 py-1.5 text-xs font-medium rounded bg-[var(--bg-subtle)] hover:bg-[var(--border-color)] text-[var(--text-main)] border border-[var(--border-color)] transition flex items-center gap-1"
                   >
                     <FileText className="w-3.5 h-3.5" />
                     {isExpanded ? 'Hide Details' : 'View Full Application'}
@@ -244,19 +244,19 @@ export default function AdminPage() {
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => handleRequestClarification(app.id, app.users?.name || 'Applicant')}
-                      className="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 transition flex items-center gap-1"
+                      onClick={() => handleRequestClarification(app.id, app.applicant?.name || 'Applicant')}
+                      className="px-3 py-1.5 text-xs font-medium rounded bg-[var(--bg-subtle)] hover:bg-[var(--border-color)] text-amber-600 dark:text-amber-400 border border-[var(--border-color)] transition flex items-center gap-1"
                     >
                       <HelpCircle className="w-3.5 h-3.5" /> Request Clarification
                     </button>
                     <button
-                      onClick={() => handleReject(app.id, app.users?.name || 'Applicant')}
-                      className="px-3 py-1.5 text-xs font-medium rounded bg-zinc-800 hover:bg-zinc-700 text-red-400 border border-zinc-700 transition"
+                      onClick={() => handleReject(app.id, app.applicant?.name || 'Applicant')}
+                      className="px-3 py-1.5 text-xs font-medium rounded bg-[var(--bg-subtle)] hover:bg-[var(--border-color)] text-red-600 dark:text-red-400 border border-[var(--border-color)] transition"
                     >
                       <X className="w-3.5 h-3.5" /> Reject
                     </button>
                     <button
-                      onClick={() => handleApprove(app.id, app.users?.name || 'Applicant')}
+                      onClick={() => handleApprove(app.id, app.applicant?.name || 'Applicant')}
                       className="px-4 py-1.5 text-xs font-semibold rounded bg-[#18A957] hover:bg-[#15944c] text-white shadow-sm transition flex items-center gap-1.5"
                     >
                       <CheckCircle className="w-3.5 h-3.5" /> Approve & Provision
@@ -265,36 +265,36 @@ export default function AdminPage() {
                 </div>
 
                 {isExpanded && (
-                  <div className="pt-3 border-t border-zinc-800 space-y-4">
+                  <div className="pt-3 border-t border-[var(--border-color)] space-y-4">
                     <div className="space-y-2 text-xs">
                       <div>
-                        <span className="text-zinc-500 font-medium">Discipline Plan:</span>
-                        <p className="text-zinc-300 mt-0.5 font-mono">{app.discipline_plan}</p>
+                        <span className="text-[var(--text-muted)] font-medium">Discipline Plan:</span>
+                        <p className="text-[var(--text-main)] mt-0.5 font-mono">{app.discipline_plan}</p>
                       </div>
                       {app.reflection_answer && (
                         <div>
-                          <span className="text-zinc-500 font-medium">Reflection:</span>
-                          <p className="text-zinc-300 mt-0.5">{app.reflection_answer}</p>
+                          <span className="text-[var(--text-muted)] font-medium">Reflection:</span>
+                          <p className="text-[var(--text-main)] mt-0.5">{app.reflection_answer}</p>
                         </div>
                       )}
                       {app.reviewer_notes && (
                         <div>
-                          <span className="text-zinc-500 font-medium">Admin Notes:</span>
-                          <p className="text-zinc-300 mt-0.5">{app.reviewer_notes}</p>
+                          <span className="text-[var(--text-muted)] font-medium">Admin Notes:</span>
+                          <p className="text-[var(--text-main)] mt-0.5">{app.reviewer_notes}</p>
                         </div>
                       )}
                     </div>
 
                     {history.length > 0 && (
                       <div className="space-y-1">
-                        <div className="text-xs font-medium text-zinc-500">Decision History:</div>
+                        <div className="text-xs font-medium text-[var(--text-muted)]">Decision History:</div>
                         {history.map((event) => (
-                          <div key={event.id} className="text-[10px] text-zinc-400 flex items-center gap-2">
+                          <div key={event.id} className="text-[10px] text-[var(--text-muted)] flex items-center gap-2">
                             <span className="font-mono">{new Date(event.timestamp).toLocaleString()}</span>
                             <span>—</span>
                             <span>{event.action}</span>
                             {event.metadata && (
-                              <span className="text-zinc-500">
+                              <span className="text-[var(--text-muted)]">
                                 {(() => { try { return JSON.stringify(JSON.parse(event.metadata)); } catch { return event.metadata; } })()}
                               </span>
                             )}
@@ -336,7 +336,7 @@ export default function AdminPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-zinc-900/90 text-zinc-400 uppercase font-mono border-b border-zinc-800">
+            <thead className="bg-[var(--bg-subtle)] text-[var(--text-muted)] uppercase font-mono border-b border-[var(--border-color)]">
               <tr>
                 <th className="p-3">Member</th>
                 <th className="p-3">Email</th>
@@ -345,18 +345,18 @@ export default function AdminPage() {
                 <th className="p-3">Role</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/60">
+            <tbody className="divide-y divide-[var(--border-color)]">
               {members.map(m => (
-                <tr key={m.id} className="hover:bg-zinc-900/50 transition">
-                  <td className="p-3 font-semibold text-white">{m.name}</td>
-                  <td className="p-3 text-zinc-300">{m.email}</td>
-                  <td className="p-3 text-zinc-400">{m.timezone}</td>
+                <tr key={m.id} className="hover:bg-[var(--bg-subtle)] transition">
+                  <td className="p-3 font-semibold text-[var(--text-main)]">{m.name}</td>
+                  <td className="p-3 text-[var(--text-main)]">{m.email}</td>
+                  <td className="p-3 text-[var(--text-muted)]">{m.timezone}</td>
                   <td className="p-3">
                     <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       {m.status}
                     </span>
                   </td>
-                  <td className="p-3 font-mono text-zinc-300">{m.role}</td>
+                  <td className="p-3 font-mono text-[var(--text-main)]">{m.role}</td>
                 </tr>
               ))}
             </tbody>
