@@ -12,6 +12,7 @@ const routes = [
   { href: '/today', label: 'Today', icon: LayoutPanelLeft },
   { href: '/goals', label: 'Goals', icon: Goal },
   { href: '/plan', label: 'Planner', icon: CalendarDays },
+  { href: '/focus', label: 'Focus', icon: Shield },
   { href: '/check-in', label: 'Check-in', icon: CheckSquare },
   { href: '/progress', label: 'Progress', icon: LineChart },
   { href: '/community', label: 'Community', icon: Users },

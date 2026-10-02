@@ -32,7 +32,9 @@ export async function signInWithEmail(email: string, password: string) {
 
 // Google OAuth Sign In
 export async function signInWithGoogle() {
-  const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`;
+  // OAuth starts in the browser, so use the host the member is actually using.
+  // A build-time NEXT_PUBLIC_APP_URL can be stale (for example, localhost in production).
+  const redirectUrl = new URL('/auth/callback', window.location.origin).toString();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
