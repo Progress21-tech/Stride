@@ -295,6 +295,19 @@ ALTER TABLE public.community_messages ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own profile" ON public.users;
 CREATE POLICY "Users can read own profile" ON public.users FOR SELECT USING (auth.uid() = id);
 
+-- Cohort chat needs names for message authors without exposing email or other profile fields.
+CREATE OR REPLACE FUNCTION public.community_member_names(member_ids UUID[])
+RETURNS TABLE(id UUID, name TEXT)
+LANGUAGE SQL
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT u.id, u.name FROM public.users u WHERE auth.uid() IS NOT NULL AND u.id = ANY(member_ids);
+$$;
+REVOKE ALL ON FUNCTION public.community_member_names(UUID[]) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.community_member_names(UUID[]) TO authenticated;
+
 DROP POLICY IF EXISTS "Users can edit own profile" ON public.users;
 CREATE POLICY "Users can edit own profile" ON public.users FOR UPDATE USING (auth.uid() = id);
 

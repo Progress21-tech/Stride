@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings, Sun, Moon, Laptop, Bell, User, Shield, LogOut, Globe } from 'lucide-react';
+import { Settings, Sun, Moon, Laptop, Bell, User, Shield, LogOut, Globe, GraduationCap, Save } from 'lucide-react';
 import { signOutUser } from '@/lib/auth-supabase';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ThemeProvider';
@@ -12,8 +12,13 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [dailyReminder, setDailyReminder] = useState(true);
+  const [lmsUrl, setLmsUrl] = useState('');
+  const [lmsSaved, setLmsSaved] = useState(false);
 
   useEffect(() => {
+    setDailyReminder(localStorage.getItem('stride-daily-reminder') !== 'off');
+    setLmsUrl(localStorage.getItem('stride-lms-url') || '');
     async function loadProfile() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -120,6 +125,16 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          <div className="border border-[var(--border-color)] rounded-xl p-5 bg-[var(--card-bg)] space-y-3">
+            <div className="flex items-center gap-2"><GraduationCap className="w-4 h-4 text-[#18A957]" /><h2 className="text-sm font-semibold text-[var(--text-main)]">Connect your LMS</h2></div>
+            <p className="text-[11px] text-[var(--text-muted)]">Add the web address of your learning platform. If it allows embedding, it will appear in Resources alongside your Stride goals.</p>
+            <form onSubmit={(event) => { event.preventDefault(); try { const parsed = new URL(lmsUrl); if (!['https:', 'http:'].includes(parsed.protocol)) return; localStorage.setItem('stride-lms-url', parsed.toString()); setLmsUrl(parsed.toString()); setLmsSaved(true); window.setTimeout(() => setLmsSaved(false), 2500); } catch { setLmsSaved(false); } }} className="flex flex-col gap-2 sm:flex-row">
+              <input type="url" value={lmsUrl} onChange={(event) => setLmsUrl(event.target.value)} placeholder="https://your-learning-platform.com" aria-label="LMS website address" className="min-w-0 flex-1 rounded-lg border border-[var(--border-color)] bg-[var(--bg-subtle)] px-3 py-2 text-sm text-[var(--text-main)] outline-none focus:border-[#18A957]" />
+              <button className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#18A957] px-3 py-2 text-xs font-semibold text-white hover:bg-[#15944c]"><Save className="h-3.5 w-3.5" />{lmsSaved ? 'Saved' : 'Save LMS'}</button>
+            </form>
+            <p className="text-[10px] text-[var(--text-muted)]">Some platforms block embedding or require a separate sign-in. Your LMS progress tracking depends on that platform allowing access.</p>
+          </div>
+
           {/* Notifications Section */}
           <div className="border border-[var(--border-color)] rounded-xl p-5 bg-[var(--card-bg)] space-y-3">
             <div className="flex items-center gap-2">
@@ -128,17 +143,14 @@ export default function SettingsPage() {
             </div>
             <div className="text-xs text-[var(--text-muted)] space-y-2">
               <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={dailyReminder} onChange={(event) => { setDailyReminder(event.target.checked); localStorage.setItem('stride-daily-reminder', event.target.checked ? 'on' : 'off'); }} className="w-3.5 h-3.5 rounded accent-[#18A957]" />
+                Remind me of today's tasks when I open Stride
+              </label>
+              <label className="flex items-center gap-2 opacity-60">
                 <input type="checkbox" defaultChecked className="w-3.5 h-3.5 rounded accent-[#18A957]" />
-                Daily check-in reminder before deadline
+                Weekly review summary (coming soon)
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" defaultChecked className="w-3.5 h-3.5 rounded accent-[#18A957]" />
-                Weekly review summary before Saturday call
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-3.5 h-3.5 rounded accent-[#18A957]" />
-                Missed check-in alert
-              </label>
+              <p className="text-[10px]">The daily reminder appears in Stride when you sign in. Browser push notifications require separate permission and are not enabled yet.</p>
             </div>
           </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, ExternalLink, GraduationCap } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { INITIAL_RESOURCES } from '@/lib/store';
 
@@ -22,8 +22,10 @@ export default function ResourcesPage() {
   const [resources, setResources] = useState<Resource[]>([]);
   const [track, setTrack] = useState('your selected track');
   const [loading, setLoading] = useState(true);
+  const [lmsUrl, setLmsUrl] = useState('');
 
   useEffect(() => {
+    setLmsUrl(localStorage.getItem('stride-lms-url') || '');
     async function loadResources() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
@@ -73,6 +75,12 @@ export default function ResourcesPage() {
           <h1 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">Curated Learning Resources</h1>
           <p className="text-xs text-[var(--text-muted)] mt-1">Resources for {track}, selected from your onboarding track.</p>
         </div>
+
+        {lmsUrl && <section className="space-y-3 rounded-xl border border-[#18A957]/20 bg-[var(--bg-subtle)] p-4 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2"><div className="flex items-center gap-2"><GraduationCap className="h-4 w-4 text-[#18A957]"/><div><h2 className="text-sm font-semibold text-[var(--text-main)]">Your learning platform</h2><p className="text-[10px] text-[var(--text-muted)]">Study in context with your Stride plan.</p></div></div><a href={lmsUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-[#18A957] hover:underline">Open separately <ExternalLink className="h-3 w-3"/></a></div>
+          <div className="overflow-hidden rounded-xl border border-[var(--border-color)] bg-[var(--card-bg)]"><iframe src={lmsUrl} title="Connected learning platform" loading="lazy" referrerPolicy="no-referrer" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" className="h-[60vh] min-h-80 w-full" /></div>
+          <p className="text-[10px] text-[var(--text-muted)]">If the platform blocks embedding or its sign-in does not load, use “Open separately”. Stride does not receive grades or course progress automatically.</p>
+        </section>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {loading && <div className="text-sm text-[var(--text-muted)]">Loading your resources...</div>}

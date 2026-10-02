@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Target, CheckCircle2, Flame, ShieldAlert, Plus } from 'lucide-react';
+import { Target, CheckCircle2, Flame, ShieldAlert, Plus, Bell, X } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { getTodayTasks, createDailyTask, updateTaskStatus, calculateUserStreak, useEmergencyPass } from '@/lib/stride-db';
@@ -19,6 +19,7 @@ export default function TodayPage() {
   const [goalTitle, setGoalTitle] = useState('No active goal yet');
   const [goalDescription, setGoalDescription] = useState('Create your first goal to give today a clear direction.');
   const [milestoneTitle, setMilestoneTitle] = useState('No milestone set');
+  const [showDailyReminder, setShowDailyReminder] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -59,6 +60,7 @@ export default function TodayPage() {
 
         // Check if user checked in today
         const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: userTimezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+        setShowDailyReminder(localStorage.getItem('stride-daily-reminder') !== 'off' && localStorage.getItem('stride-reminder-dismissed') !== todayStr);
         const { data: chk } = await supabase
           .from('check_ins')
           .select('id')
@@ -127,6 +129,14 @@ export default function TodayPage() {
 
   return (
     <div className="space-y-6">
+
+      {showDailyReminder && !loading && (
+        <div role="status" className="flex items-start gap-3 rounded-xl border border-[#18A957]/25 bg-[#18A957]/10 p-4">
+          <Bell className="mt-0.5 h-4 w-4 shrink-0 text-[#18A957]" />
+          <div className="min-w-0 flex-1"><p className="text-sm font-semibold text-[var(--text-main)]">A fresh day, one step closer.</p><p className="mt-1 text-xs text-[var(--text-muted)]">You have {tasks.filter((task) => task.status !== 'COMPLETED').length} task{tasks.filter((task) => task.status !== 'COMPLETED').length === 1 ? '' : 's'} to work on today. Pick your first one and get started.</p><Link href="/plan" className="mt-2 inline-block text-xs font-semibold text-[#18A957] hover:underline">Open your planner →</Link></div>
+          <button aria-label="Dismiss today's reminder" onClick={() => { const today = new Intl.DateTimeFormat('en-CA', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); localStorage.setItem('stride-reminder-dismissed', today); setShowDailyReminder(false); }} className="rounded-lg p-1 text-[var(--text-muted)] hover:bg-[var(--card-bg)]"><X className="h-4 w-4" /></button>
+        </div>
+      )}
 
       {/* Top Banner: Primary Goal Focus */}
       <div className="glass-card rounded-xl p-6 relative overflow-hidden">
