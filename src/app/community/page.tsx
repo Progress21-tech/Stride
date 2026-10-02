@@ -25,7 +25,7 @@ export default function CommunityPage() {
       if (!ids.length) return;
       const { data } = await supabase.rpc('community_member_names', { member_ids: ids });
       if (!active || !data) return;
-      setNames((current) => ({ ...current, ...Object.fromEntries(data.map((user) => [user.id, user.name])) }));
+      setNames((current) => ({ ...current, ...Object.fromEntries(data.map((user: { id: string; name: string }) => [user.id, user.name])) }));
     };
     async function loadCommunity() {
       const { data: { user } } = await supabase.auth.getUser();
