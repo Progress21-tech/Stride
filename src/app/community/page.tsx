@@ -21,7 +21,7 @@ export default function CommunityPage() {
   useEffect(() => {
     let active = true;
     const hydrateNames = async (items: Message[]) => {
-      const ids = [...new Set(items.map((item) => item.user_id))].filter((id) => !names[id]);
+      const ids = items.map((item) => item.user_id).filter((id, index, all) => all.indexOf(id) === index && !names[id]);
       if (!ids.length) return;
       const { data } = await supabase.rpc('community_member_names', { member_ids: ids });
       if (!active || !data) return;
