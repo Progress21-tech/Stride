@@ -3,19 +3,23 @@
   "services": {
     "api": {
       "root": "apps/api",
-      "framework": "fastify"
+      "framework": "fastify",
+      "installCommand": "corepack pnpm@9.15.9 install --no-frozen-lockfile"
     },
     "app": {
       "root": "apps/app",
-      "framework": "nextjs"
+      "framework": "nextjs",
+      "installCommand": "corepack pnpm@9.15.9 install --no-frozen-lockfile"
     },
     "legacy": {
       "root": "apps/legacy",
-      "framework": "nextjs"
+      "framework": "nextjs",
+      "installCommand": "corepack pnpm@9.15.9 install --no-frozen-lockfile"
     },
     "marketing": {
       "root": "apps/marketing",
-      "framework": "nextjs"
+      "framework": "nextjs",
+      "installCommand": "corepack pnpm@9.15.9 install --no-frozen-lockfile"
     }
   },
   "rewrites": [

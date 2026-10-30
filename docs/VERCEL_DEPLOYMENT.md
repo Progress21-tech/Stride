@@ -12,6 +12,8 @@ The repository is configured as one Vercel project in Services mode. Set the Ver
 
 The order matters: admin-host routing comes first so the legacy app's own `/api/admin/...` handler is not sent to Fastify; API routing comes before the app-host and marketing catch-alls.
 
+Each service pins pnpm 9.15.9 in its install command because the repository uses `workspace:*` dependencies and currently has no `pnpm-lock.yaml`. Without a lockfile Vercel defaults to npm, which fails on this workspace protocol. `--no-frozen-lockfile` allows the install to run until a pnpm lockfile is committed; commit a generated `pnpm-lock.yaml` for reproducible deployments, then remove this flag.
+
 ## Inter-service calls and bindings
 
 The marketing form and the PWA call `/api/...` from the browser, through the public Vercel rewrite. Those are browser-to-public-API calls, not server-side service-to-service calls. The legacy app uses its own API routes and Supabase. Fastify calls Supabase and Resend, which are external services. There are currently no server-side calls between these four Vercel services, so no Vercel service bindings are declared. If a server-side call is added later, add a binding to the caller and consume its injected URL at runtime.
