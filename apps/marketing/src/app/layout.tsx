@@ -4,12 +4,12 @@ import { siteUrl } from '../lib/site-url';
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: 'Sylpace — Learn with a plan. Keep showing up.',
-  description: 'Sylpace is a learning platform in development for university students, with tutor-led courses and practical tools to help students follow through.',
+  title: 'Sylpace — Turn intention into progress.',
+  description: 'Sylpace is a structured learning accountability platform that helps learners turn goals into plans, follow through day by day, and review their progress.',
   applicationName: 'Sylpace',
   openGraph: {
-    title: 'Sylpace — Learn with a plan. Keep showing up.',
-    description: 'A university learning platform is coming soon.',
+    title: 'Sylpace — Turn intention into progress.',
+    description: 'Set a learning goal, plan the work, show up consistently, and review your progress.',
     siteName: 'Sylpace',
     type: 'website',
   },
