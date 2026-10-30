@@ -4,12 +4,12 @@ import { siteUrl } from '../lib/site-url';
 
 export const metadata: Metadata = {
   metadataBase: siteUrl,
-  title: 'Sylpace — Turn intention into progress.',
-  description: 'Sylpace is a structured learning accountability platform that helps learners turn goals into plans, follow through day by day, and review their progress.',
+  title: 'Sylpace — Learn your courses. Stay on track.',
+  description: 'Sylpace brings university courses, lessons, practice and progress tracking together, with accountability built in to help students keep going.',
   applicationName: 'Sylpace',
   openGraph: {
-    title: 'Sylpace — Turn intention into progress.',
-    description: 'Set a learning goal, plan the work, show up consistently, and review your progress.',
+    title: 'Sylpace — Learn your courses. Stay on track.',
+    description: 'University courses, lessons, practice and progress tracking, with accountability built in.',
     siteName: 'Sylpace',
     type: 'website',
   },
