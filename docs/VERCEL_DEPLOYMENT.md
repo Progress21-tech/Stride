@@ -12,7 +12,7 @@ The repository is configured as one Vercel project in Services mode. Set the Ver
 
 The order matters: admin-host routing comes first so the legacy app's own `/api/admin/...` handler is not sent to Fastify; API routing comes before the app-host and marketing catch-alls.
 
-Each service pins pnpm 9.15.9 in its install command because the repository uses `workspace:*` dependencies and currently has no `pnpm-lock.yaml`. Without a lockfile Vercel defaults to npm, which fails on this workspace protocol. `--no-frozen-lockfile` allows the install to run until a pnpm lockfile is committed; commit a generated `pnpm-lock.yaml` for reproducible deployments, then remove this flag.
+Each service pins pnpm 9.15.9 in its install command because the repository uses `workspace:*` dependencies and currently has no `pnpm-lock.yaml`. Without a lockfile Vercel defaults to npm, which fails on this workspace protocol. `--no-frozen-lockfile` allows the install to run until a pnpm lockfile is committed; commit a generated `pnpm-lock.yaml` for reproducible deployments, then remove this flag. The `@sylpace/db` package generates its Prisma client during install so Fastify's bundle can resolve the generated client import.
 
 ## Inter-service calls and bindings
 
