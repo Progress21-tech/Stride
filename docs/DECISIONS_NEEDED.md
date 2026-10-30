@@ -2,12 +2,11 @@
 
 Product name D1 has been answered: **Sylpace**. All launch copy should use Sylpace.
 
-## D2 — Waitlist fields
+## D2 � Waitlist fields
 
-- **Question:** Which level options should the waitlist offer, and should it collect university and department?
-- **Options:** (1) 100–600 Level, Postgraduate, Other, plus university (recommended); (2) choose another list; (3) omit university/department.
-- **Blocked:** Enabling the waitlist form, persisting waitlist entries, and defining the final consent text/data map. The marketing site may show a clearly labeled “opening soon” waitlist placeholder until answered.
-
+- **Resolved by owner instruction:** Collect email only. The public form asks for explicit consent to receive launch email updates; it does not request study level, university, or department.
+- **Implemented:** `/` is the public waitlist page and stores normalized email plus the accepted consent-text version and timestamp through the API.
+- **Still required before production:** D12 legal review, confirmed retention/contact details, and configured production API/database.
 ## D5 — Tutor intake
 
 - **Question:** Is tutor intake invite-only or open application? What vetting, agreement, and compensation terms apply?

@@ -24,6 +24,6 @@ The PWA manifest starts at `/login`. That route checks the session and forwards 
 
 ## API project
 
-The API is a separate Fastify service in `apps/api`, not a Next.js site. Deploy it to a Node 24 compatible service with PostgreSQL, Redis, and mail credentials after D6 is resolved. Point the PWA's `NEXT_PUBLIC_API_URL` at that service and set `API_CORS_ORIGINS` to the exact PWA origin.
+The API is a separate Fastify service in `apps/api`, not a Next.js site. Deploy it to a Node 24 compatible service with PostgreSQL, Redis, and mail credentials after D6 is resolved. Point the PWA and marketing app's `NEXT_PUBLIC_API_URL` at that service and set `API_CORS_ORIGINS` to the exact PWA and marketing origins.
 
 Use Node.js 24 for both Vercel projects. The root `engines` range is pinned below Node 25 so Vercel does not automatically select a future major. Install dependencies with the repository's pnpm workspace rather than npm in the app subdirectory.

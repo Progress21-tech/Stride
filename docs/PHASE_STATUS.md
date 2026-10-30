@@ -6,12 +6,12 @@ Updated: 30 October 2026. The implementation is a foundation pass, not a launch 
 
 - **Built:** Separate `apps/marketing` Next app; Sylpace launch copy; mobile layouts; light/system-dark styling; reduced-motion handling; shared UI token import; placeholder image blocks; privacy and terms drafts; metadata, Open Graph image, robots, sitemap; image manifest validation and AVIF/WebP generation pipeline.
 - **Built:** A Contact page with no invented email address, plus a tutor information section that does not open applications while D5 is unresolved.
-- **Blocked on D2/D12:** Waitlist fields, consent, storage, submission, duplicate handling, rate limits, email, export, and RLS test. The page states signup is opening soon and does not collect personal information.
+- **Built:** The public homepage is the waitlist page, open without login. It collects email only with explicit consent, persists normalized entries and consent version/time through a rate-limited, origin-checked API endpoint, rejects duplicate emails safely, and provides a generic response.
 - **Blocked on D5:** Tutor intake destination/form; the public page explains intake details are still being decided.
 - **Blocked on D9:** Production photography and licensing. Build passes with neutral labeled placeholders only.
-- **Blocked on D6/D9/D12:** Staging deployment and production review.
+- **Blocked on D6/D12:** Production database/API configuration and final privacy/legal review.
 - **Not verified:** Lighthouse targets and automated accessibility checks. No local Node.js runtime or dependencies are available in the current workspace.
-- **Phase 0 acceptance:** Not complete. Do not treat the new site as production-ready or enable public signup until all listed decisions, supplied assets, checks, and staging review are complete.
+- **Phase 0 acceptance:** Not complete. Do not enable production API collection until D6 and D12 are resolved, the privacy notice is approved, a monitored privacy contact and retention period are set, and staging review is complete.
 
 ## Phase 1 — Platform foundation
 

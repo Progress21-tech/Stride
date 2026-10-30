@@ -86,6 +86,17 @@ CREATE TABLE "VerificationToken" (
 CREATE UNIQUE INDEX "VerificationToken_tokenHash_key" ON "VerificationToken" ("tokenHash");
 CREATE INDEX "VerificationToken_userId_purpose_expiresAt_idx" ON "VerificationToken" ("userId", "purpose", "expiresAt");
 
+CREATE TABLE "WaitlistEntry" (
+  "id" UUID NOT NULL,
+  "email" VARCHAR(320) NOT NULL,
+  "consentVersion" VARCHAR(40) NOT NULL,
+  "consentAt" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "createdAt" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "WaitlistEntry_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX "WaitlistEntry_email_key" ON "WaitlistEntry" ("email");
+CREATE INDEX "WaitlistEntry_createdAt_idx" ON "WaitlistEntry" ("createdAt");
+
 CREATE TABLE "AuditEvent" (
   "id" UUID NOT NULL,
   "actorId" UUID,

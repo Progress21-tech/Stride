@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { prisma } from '@sylpace/db';
 import { problemSchema } from '@sylpace/contracts';
 import { registerAuthRoutes } from './identity/routes.js';
+import { registerWaitlistRoutes } from './waitlist.js';
 import { openApiDocument } from './openapi.js';
 
 const envSchema = z.object({
@@ -52,6 +53,7 @@ export async function buildServer() {
     }
   });
   await app.register(registerAuthRoutes, { prefix: '/v1/auth', allowedOrigins });
+  await app.register(registerWaitlistRoutes, { prefix: '/v1/waitlist', allowedOrigins });
 
   return { app, port: env.API_PORT, redis };
 }
