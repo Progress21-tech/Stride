@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@9.15.9",
-  "engines": { "node": ">=22.18.0" },
+  "engines": { "node": ">=24.11.0 <25" },
   "scripts": {
     "dev:marketing": "pnpm --filter @sylpace/marketing dev",
     "build:marketing": "pnpm --filter @sylpace/marketing build",

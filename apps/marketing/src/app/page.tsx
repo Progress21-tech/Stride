@@ -13,9 +13,10 @@ const faqs = [
 ];
 
 export default function HomePage() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.sylpace.com';
   return <main className="shell">
     <div className="wrap">
-      <header className="nav"><a className="brand" href="#top" aria-label="Sylpace home"><span className="mark" aria-hidden="true">s</span>Sylpace</a><nav className="nav-links" aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#students">For students</a><a className="nav-cta" href="#waitlist">Get launch updates <span aria-hidden="true">↗</span></a></nav></header>
+      <header className="nav"><a className="brand" href="#top" aria-label="Sylpace home"><span className="mark" aria-hidden="true">s</span>Sylpace</a><nav className="nav-links" aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#students">For students</a><a href={appUrl}>Sign in</a><a className="nav-cta" href="#waitlist">Get launch updates <span aria-hidden="true">↗</span></a></nav></header>
       <section className="hero" id="top"><div><span className="eyebrow"><i className="pulse"/> Coming soon</span><h1>Learn with a plan.<br/><em>Keep showing up.</em></h1><p className="lead">Sylpace is a learning platform in development for university students. Follow tutor-led courses and build a steady learning routine, one day at a time.</p><div className="actions"><a className="button primary" href="#waitlist">Get launch updates <span aria-hidden="true">→</span></a><a className="button ghost" href="#how-it-works">Explore the plan</a></div><p className="subnote">Planned first for science students, with engineering to follow.</p></div><div className="visual"><div className="image-placeholder" role="img" aria-label="Placeholder for a licensed photo of university students studying"><div className="placeholder-label"><strong>Image placeholder</strong>Student study photo supplied by Sylpace</div></div><div className="float-card"><b>One step at a time</b><span>A plan you can return to.</span></div><div className="float-card top"><b>Coming soon</b><span>Courses · practice · progress</span></div></div></section>
     </div>
 

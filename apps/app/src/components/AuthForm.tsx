@@ -32,7 +32,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' | 'forgot' | 'rese
       });
       const payload = await response.json().catch(() => ({})) as { message?: string; detail?: string; title?: string } & Partial<Problem>;
       if (!response.ok) throw new Error(payload.detail ?? payload.title ?? 'Request failed. Please try again.');
-      if (mode === 'login') window.location.assign('/today');
+      if (mode === 'login') window.location.assign('/app');
       else setMessage(payload.message ?? (mode === 'signup' ? 'Check your email for a verification link.' : 'Request complete.'));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Request failed. Please try again.');

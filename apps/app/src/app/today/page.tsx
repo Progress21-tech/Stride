@@ -1,3 +1,5 @@
-import { TodayGate } from '@/components/TodayGate';
+import { redirect } from 'next/navigation';
 
-export default function TodayPage() { return <TodayGate />; }
+export default function TodayRedirect() {
+  redirect('/app');
+}
