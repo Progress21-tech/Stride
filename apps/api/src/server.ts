@@ -22,8 +22,8 @@ export async function buildServer() {
   if (process.env.NODE_ENV === 'production' && (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL || !process.env.SYLPACE_APP_URL)) {
     throw new Error('Email delivery and app URL configuration are required in production.');
   }
-  if (process.env.NODE_ENV === 'production' && (!(process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL) || !process.env.SUPABASE_SERVICE_ROLE_KEY)) {
-    throw new Error('Supabase URL and service role key are required for the temporary waitlist.');
+  if (process.env.NODE_ENV === 'production' && (!(process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL) || !(process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY))) {
+    throw new Error('Supabase URL and anon key are required for the temporary waitlist.');
   }
   const allowedOrigins = env.API_CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean);
   if (process.env.NODE_ENV === 'production' && !env.REDIS_URL) throw new Error('REDIS_URL is required in production.');
@@ -41,9 +41,9 @@ export async function buildServer() {
   await app.register(cookie);
   await app.register(cors, { origin: allowedOrigins, credentials: true, methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] });
   await app.register(rateLimit, { max: 100, timeWindow: '1 minute', ...(redis ? { redis } : {}) });
-  app.get('/healthz', async () => ({ status: 'ok' }));
-  app.get('/v1/openapi.json', async () => openApiDocument);
-  app.get('/readyz', async (_request, reply) => {
+  app.get('/api/healthz', async () => ({ status: 'ok' }));
+  app.get('/api/v1/openapi.json', async () => openApiDocument);
+  app.get('/api/readyz', async (_request, reply) => {
     try {
       if (redis) await redis.ping();
       else if (process.env.NODE_ENV === 'production') throw new Error('Redis unavailable');
@@ -55,8 +55,8 @@ export async function buildServer() {
       }));
     }
   });
-  await app.register(registerAuthRoutes, { prefix: '/v1/auth', allowedOrigins });
-  await app.register(registerWaitlistRoutes, { prefix: '/v1/waitlist', allowedOrigins });
+  await app.register(registerAuthRoutes, { prefix: '/api/v1/auth', allowedOrigins });
+  await app.register(registerWaitlistRoutes, { prefix: '/api/v1/waitlist', allowedOrigins });
 
   return { app, port: env.API_PORT, redis };
 }

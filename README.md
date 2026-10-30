@@ -15,7 +15,7 @@ Sylpace is a university learning platform in development. This repository is mov
 
 Use Node.js 24.11+ and pnpm 9, then run `pnpm install`. Copy `.env.example` to `.env` and fill in the hosted services you have configured. Codespaces creates the example `.env` automatically. Production services and credentials are not provisioned until D6 is answered. Secure `__Host-` auth cookies require HTTPS, which Codespaces supplies for forwarded ports.
 
-Run `pnpm dev:marketing` for the public site, `pnpm dev:app` for the new PWA, or `pnpm dev:api` for the API foundation. Deploy marketing and PWA as separate Vercel projects with Root Directories `apps/marketing` and `apps/app`, then assign separate public and app domains. The marketing domain serves `/`; the PWA domain opens at `/login` and sends signed-in members to `/app`. See `docs/VERCEL_DEPLOYMENT.md`.
+Run `pnpm dev:marketing` for the public site, `pnpm dev:app` for the new PWA, or `pnpm dev:api` for the API foundation. The root `vercel.json` configures one multi-service Vercel project: marketing at `/` on the main host, PWA at `/login` and `/app` on the app host, the legacy Supabase workspace on the admin host, and Fastify under `/api`. See `docs/VERCEL_DEPLOYMENT.md`.
 
 The app still depends on the existing Supabase project. This is legacy behavior only, pending the D8 migration decision and the first-party identity implementation. New code must not add Supabase usage outside `packages/waitlist`.
 

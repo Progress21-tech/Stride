@@ -18,15 +18,15 @@ export async function registerWaitlistRoutes(app: FastifyInstance, options: { al
     if (parsed.data.website) return reply.code(202).send({ message: 'Thanks. If the address is eligible, it will be added to the launch list.' });
 
     const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!supabaseUrl || !serviceKey) return reply.code(503).send({ message: 'Waitlist signup is temporarily unavailable.' });
+    const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !anonKey) return reply.code(503).send({ message: 'Waitlist signup is temporarily unavailable.' });
 
     try {
       const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/waitlist_entries?on_conflict=email`, {
         method: 'POST',
         headers: {
-          apikey: serviceKey,
-          Authorization: `Bearer ${serviceKey}`,
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
           'Content-Type': 'application/json',
           Prefer: 'resolution=ignore-duplicates,return=minimal',
         },

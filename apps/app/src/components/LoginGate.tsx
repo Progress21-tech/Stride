@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthForm } from './AuthForm';
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export function LoginGate() {
   const router = useRouter();
@@ -12,7 +12,7 @@ export function LoginGate() {
 
   useEffect(() => {
     let active = true;
-    fetch(`${apiBase}/v1/auth/me`, { credentials: 'include', cache: 'no-store' })
+    fetch(`${apiBase}/api/v1/auth/me`, { credentials: 'include', cache: 'no-store' })
       .then((response) => {
         if (response.ok) router.replace('/app');
       })
@@ -21,6 +21,6 @@ export function LoginGate() {
     return () => { active = false; };
   }, [router]);
 
-  if (!checked) return <main className="shell"><p role="status" className="status">Checking your Sylpace session…</p></main>;
+  if (!checked) return <main className="shell"><p role="status" className="status">Checking your Sylpace sessionâ€¦</p></main>;
   return <AuthForm mode="login" />;
 }

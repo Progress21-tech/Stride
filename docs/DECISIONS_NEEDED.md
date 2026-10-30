@@ -5,7 +5,7 @@ Product name D1 has been answered: **Sylpace**. All launch copy should use Sylpa
 ## D2 — Waitlist fields
 
 - **Resolved by owner instruction:** Collect email only. The public form asks for explicit consent to receive launch email updates; it does not request study level, university, or department.
-- **Implemented:** `/` is a public waitlist with no login/signup links. The API stores normalized email and consent version/time in the existing Supabase project using a server-only service-role key. A temporary `/admin/waitlist` page lists entries only for a verified Supabase user explicitly registered in `waitlist_admins`.
+- **Implemented:** `/` is a public waitlist with no login/signup links. The API stores normalized email and consent version/time in the existing Supabase project using the anon key and RLS. A temporary `/admin/waitlist` page lists entries only for a verified Supabase user explicitly registered in `waitlist_admins`.
 - **Still required before production:** D12 legal review, confirmed retention/contact details, Supabase schema setup, production API secrets, and insertion of the owner's verified Auth user UUID in `waitlist_admins`.
 ## D5 â€” Tutor intake
 

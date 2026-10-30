@@ -1,0 +1,36 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "api": {
+      "root": "apps/api",
+      "framework": "fastify"
+    },
+    "app": {
+      "root": "apps/app",
+      "framework": "nextjs"
+    },
+    "legacy": {
+      "root": "apps/legacy",
+      "framework": "nextjs"
+    },
+    "marketing": {
+      "root": "apps/marketing",
+      "framework": "nextjs"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": { "pre": "admin." } }],
+      "destination": { "service": "legacy" }
+    },
+    { "source": "/api", "destination": { "service": "api" } },
+    { "source": "/api/(.*)", "destination": { "service": "api" } },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": { "pre": "app." } }],
+      "destination": { "service": "app" }
+    },
+    { "source": "/(.*)", "destination": { "service": "marketing" } }
+  ]
+}

@@ -421,7 +421,7 @@ REVOKE ALL ON public.waitlist_admins FROM anon, authenticated;
 REVOKE ALL ON public.waitlist_entries FROM anon, authenticated;
 GRANT SELECT ON public.waitlist_admins TO authenticated;
 GRANT SELECT ON public.waitlist_entries TO authenticated;
-GRANT ALL ON public.waitlist_entries TO service_role;
+GRANT INSERT ON public.waitlist_entries TO anon;
 
 DROP POLICY IF EXISTS "Waitlist owner can see own access record" ON public.waitlist_admins;
 CREATE POLICY "Waitlist owner can see own access record"
@@ -434,6 +434,15 @@ CREATE POLICY "Waitlist owner can read submissions"
     SELECT 1 FROM public.waitlist_admins owner_access
     WHERE owner_access.user_id = auth.uid()
   ));
+
+DROP POLICY IF EXISTS "Public can join waitlist" ON public.waitlist_entries;
+CREATE POLICY "Public can join waitlist"
+  ON public.waitlist_entries FOR INSERT TO anon
+  WITH CHECK (
+    email = lower(btrim(email))
+    AND length(email) <= 320
+    AND consent_version = 'launch-updates-2026-10'
+  );
 
 -- Add only your own already-verified Supabase Auth user ID here via SQL Editor.
 -- Example: INSERT INTO public.waitlist_admins (user_id)
