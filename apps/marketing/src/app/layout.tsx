@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
-
-const siteUrl = process.env.NEXT_PUBLIC_MARKETING_URL ?? 'https://sylpace.example';
+import { siteUrl } from '../lib/site-url';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: siteUrl,
   title: 'Sylpace — Learn with a plan. Keep showing up.',
   description: 'Sylpace is a learning platform in development for university students, with tutor-led courses and practical tools to help students follow through.',
   applicationName: 'Sylpace',
