@@ -3,7 +3,7 @@ import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { z } from 'zod';
 import { prisma } from '@sylpace/db';
 import { problemSchema } from '@sylpace/contracts';
