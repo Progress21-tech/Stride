@@ -1,0 +1,14 @@
+{
+  "name": "Sylpace cloud development",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-24-bookworm",
+  "postCreateCommand": "corepack enable && pnpm install && cp -n .env.example .env",
+  "forwardPorts": [3000, 3001, 4000],
+  "portsAttributes": {
+    "3000": { "label": "Sylpace app" },
+    "3001": { "label": "Sylpace marketing" },
+    "4000": { "label": "Sylpace API" }
+  },
+  "customizations": {
+    "vscode": { "extensions": ["dbaeumer.vscode-eslint", "Prisma.prisma"] }
+  }
+}

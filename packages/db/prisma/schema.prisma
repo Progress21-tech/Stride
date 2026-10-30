@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum Role {
+  STUDENT
+  TUTOR
+  REVIEWER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id              String           @id @default(uuid()) @db.Uuid
+  email           String           @db.VarChar(320)
+  emailVerifiedAt DateTime?        @db.Timestamptz(6)
+  passwordHash    String?          @db.VarChar(255)
+  name            String           @db.VarChar(120)
+  timeZone        String           @default("UTC") @db.VarChar(100)
+  status          UserStatus       @default(ACTIVE)
+  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(6)
+  oauthAccounts   OAuthAccount[]
+  sessions        Session[]
+  roles           UserRole[]
+  verificationTokens VerificationToken[]
+  auditEvents     AuditEvent[]     @relation("AuditActor")
+  invitesCreated  Invite[]         @relation("InviteCreator")
+
+  @@index([status, createdAt])
+}
+
+model OAuthAccount {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @db.Uuid
+  provider          String   @db.VarChar(40)
+  providerAccountId String   @db.VarChar(255)
+  createdAt         DateTime @default(now()) @db.Timestamptz(6)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  tokenHash  String    @unique @db.VarChar(128)
+  expiresAt  DateTime  @db.Timestamptz(6)
+  lastUsedAt DateTime  @default(now()) @db.Timestamptz(6)
+  userAgent  String?   @db.VarChar(512)
+  ipHash     String?   @db.VarChar(128)
+  revokedAt  DateTime? @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+}
+
+model UserRole {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  role      Role
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@index([role])
+}
+
+model Invite {
+  id          String    @id @default(uuid()) @db.Uuid
+  email       String    @db.VarChar(320)
+  role        Role
+  tokenHash   String    @unique @db.VarChar(128)
+  expiresAt   DateTime  @db.Timestamptz(6)
+  usedAt      DateTime? @db.Timestamptz(6)
+  createdById String?   @db.Uuid
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  createdBy   User?     @relation("InviteCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([email, expiresAt])
+}
+
+model VerificationToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  email      String    @db.VarChar(320)
+  tokenHash  String    @unique @db.VarChar(128)
+  purpose    String    @db.VarChar(32)
+  expiresAt  DateTime  @db.Timestamptz(6)
+  usedAt     DateTime? @db.Timestamptz(6)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose, expiresAt])
+}
+
+model AuditEvent {
+  id         String   @id @default(uuid()) @db.Uuid
+  actorId    String?  @db.Uuid
+  action     String   @db.VarChar(100)
+  objectType String   @db.VarChar(100)
+  objectId   String?  @db.VarChar(128)
+  metadata   Json?
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId, createdAt])
+  @@index([objectType, objectId, createdAt])
+  @@index([action, createdAt])
+}
+
+model FeatureFlag {
+  key       String   @id @db.VarChar(100)
+  enabled   Boolean  @default(false)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model Institution {
+  id        String       @id @default(uuid()) @db.Uuid
+  name      String       @db.VarChar(200)
+  slug      String       @unique @db.VarChar(200)
+  country   String       @db.Char(2)
+  active    Boolean      @default(false)
+  createdAt DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @db.Timestamptz(6)
+  faculties Faculty[]
+}
+
+model Faculty {
+  id            String       @id @default(uuid()) @db.Uuid
+  institutionId String       @db.Uuid
+  name          String       @db.VarChar(200)
+  slug          String       @db.VarChar(200)
+  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+  institution   Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  departments  Department[]
+
+  @@unique([institutionId, slug])
+  @@index([institutionId])
+}
+
+model Department {
+  id        String   @id @default(uuid()) @db.Uuid
+  facultyId String   @db.Uuid
+  name      String   @db.VarChar(200)
+  slug      String   @db.VarChar(200)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  faculty   Faculty  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@unique([facultyId, slug])
+  @@index([facultyId])
+}

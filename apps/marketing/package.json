@@ -1,0 +1,29 @@
+{
+  "name": "@sylpace/marketing",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "node scripts/validate-image-manifest.mjs && node scripts/build-images.mjs && next build",
+    "images:build": "node scripts/validate-image-manifest.mjs && node scripts/build-images.mjs",
+    "start": "next start --port 3001",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sylpace/ui": "workspace:*",
+    "next": "16.4.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.30",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.22.0",
+    "dotenv": "^16.4.7",
+    "eslint-config-next": "16.4.0",
+    "sharp": "^0.33.5",
+    "typescript": "5.8.3"
+  }
+}

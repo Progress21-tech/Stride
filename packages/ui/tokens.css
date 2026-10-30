@@ -1,0 +1,40 @@
+:root {
+  --bg-main: #F7F7F5;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #EFEFEF;
+  --bg-secondary: #E8E8E8;
+  --text-main: #111111;
+  --text-muted: #626A64;
+  --border-color: #E8E8E8;
+  --sylpace-green: #18A957;
+  --sylpace-green-text: #08763B;
+  --card-bg: #FFFFFF;
+  --card-border: #E8E8E8;
+  --focus-ring: #08763B;
+}
+
+html.dark {
+  --bg-main: #0A0A0A;
+  --bg-surface: #141414;
+  --bg-subtle: #1F1F1F;
+  --bg-secondary: #1C1C1C;
+  --text-main: #F5F5F5;
+  --text-muted: #B0B0B0;
+  --border-color: #333333;
+  --sylpace-green: #18A957;
+  --sylpace-green-text: #48C77A;
+  --card-bg: #141414;
+  --card-border: rgba(255, 255, 255, 0.1);
+  --focus-ring: #48C77A;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }

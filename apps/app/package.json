@@ -1,0 +1,28 @@
+{
+  "name": "@sylpace/app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sylpace/contracts": "workspace:*",
+    "@sylpace/ui": "workspace:*",
+    "next": "16.4.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.30",
+    "dotenv": "^16.4.7",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.22.0",
+    "eslint-config-next": "16.4.0",
+    "typescript": "5.8.3"
+  }
+}

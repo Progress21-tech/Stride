@@ -1,0 +1,44 @@
+name: Sylpace CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: sylpace
+          POSTGRES_PASSWORD: sylpace
+          POSTGRES_DB: sylpace
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sylpace -d sylpace"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://sylpace:sylpace@localhost:5432/sylpace?schema=public
+      API_CORS_ORIGINS: http://localhost:3000,http://localhost:3001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: pnpm install
+      - run: pnpm check:supabase-imports
+      - run: pnpm --filter @sylpace/db db:generate
+      - run: pnpm --filter @sylpace/db db:validate
+      - run: pnpm --filter @sylpace/db db:migrate
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build:marketing
+      - run: pnpm build:app

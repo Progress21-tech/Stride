@@ -1,5 +1,5 @@
 -- ============================================================================
--- STRIDE PLATFORM — PRODUCTION SUPABASE / POSTGRESQL SCHEMA WITH AUTH SYNC
+-- SYLPACE LEGACY PLATFORM — SUPABASE / POSTGRESQL SCHEMA (PENDING D8 CUTOVER)
 -- 100% Idempotent Script — Safe to run multiple times in Supabase SQL Editor
 -- ============================================================================
 
