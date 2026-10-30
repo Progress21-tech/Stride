@@ -17,7 +17,7 @@ export default async function WaitlistAdminPage() {
       getAll: () => cookieStore.getAll(),
       setAll: (items) => {
         try { items.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); }
-        catch { /* Server components cannot write cookies; middleware refreshes the session. */ }
+        catch { /* Server components cannot write cookies; proxy refreshes the session. */ }
       },
     },
   });
