@@ -1,41 +1,46 @@
+'use client';
+
+import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, CalendarDays, CheckCircle2, Flame, Target, TrendingUp, Users } from 'lucide-react';
 import { WaitlistForm } from '../components/WaitlistForm';
 
-const pillars = [
-  { icon: '↗', title: 'Choose a direction', text: 'Turn a learning ambition into a clear goal with a meaningful outcome.' },
-  { icon: '✓', title: 'Plan the work', text: 'Break goals into milestones, weekly objectives, and daily tasks.' },
-  { icon: '◎', title: 'Show up', text: 'Use your Today plan and daily check-ins to keep moving, even when motivation changes.' },
-  { icon: '＋', title: 'Review your progress', text: 'See the work you have done, reflect on what got in the way, and decide what comes next.' },
-];
-
-const faqs = [
-  ['When will Sylpace launch?', 'Sylpace is in development. Join the waitlist and we will email you when there are launch updates to share.'],
-  ['What is Sylpace?', 'Sylpace is a structured learning accountability platform that helps you turn a learning goal into a plan, follow through day by day, and review your progress.'],
-  ['Who is Sylpace for?', 'Sylpace is for learners who want more structure and accountability as they work toward a meaningful learning goal.'],
-  ['Can I use the platform now?', 'The platform is being built. The waitlist is open for launch updates; joining does not create an account or grant platform access.'],
-  ['Can tutors or mentors apply?', 'Tutor and mentor intake details are still being decided. We will share the process when it is ready.'],
+const stories = [
+  { eyebrow: '01 / Set direction', title: 'A learning goal is more useful when it has a path.', copy: 'Turn an outcome you care about into milestones and weekly objectives you can act on, with a clear sense of where you are going.', icon: Target, visual: ['Become a frontend developer', 'HTML and CSS foundations', 'JavaScript projects', 'React portfolio'] },
+  { eyebrow: '02 / Plan the work', title: 'Make the next step clear before motivation fades.', copy: 'Move from a longer term goal to this week and today, so each learning session has a practical next action.', icon: CalendarDays, visual: ['This month · build foundations', 'This week · practice JavaScript', 'Today · complete one focused task'] },
+  { eyebrow: '03 / Show up', title: 'Consistency gets a place to live.', copy: 'Track planned work and daily check-ins, including what you completed, how long you learned, and what got in the way.', icon: CheckCircle2, visual: ['Practice array methods', 'Record learning time', 'Share a blocker and next priority'] },
+  { eyebrow: '04 / See the evidence', title: 'Your effort should add up to progress you can see.', copy: 'Review completed work, learning time, reporting streaks, and recommendations that help you choose what to learn next.', icon: TrendingUp, visual: ['Weekly plan completion', 'Learning time and consistency', 'Recommended next resource'] },
+  { eyebrow: '05 / Review together', title: 'Accountability makes reflection part of the plan.', copy: 'Bring your progress, blockers, and next steps into a structured group review, with room for community and guided learning.', icon: Users, visual: ['What moved forward?', 'What got in the way?', 'What will you work on next?'] },
 ];
 
 export default function HomePage() {
-  return <main className="shell">
-    <div className="wrap">
-      <header className="nav"><a className="brand" href="#top" aria-label="Sylpace home"><span className="mark" aria-hidden="true">s</span>Sylpace</a><nav className="nav-links" aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#students">Who it’s for</a><a className="nav-cta" href="#waitlist">Join the waitlist <span aria-hidden="true">↗</span></a></nav></header>
-      <section className="hero" id="top"><div><span className="eyebrow"><i className="pulse"/> Coming soon</span><h1>Turn intention into <em>progress.</em></h1><p className="lead">Sylpace helps you turn a learning ambition into goals, weekly plans, and daily actions—with accountability and guidance to help you keep going.</p><div id="waitlist"><WaitlistForm /></div><p className="subnote">No account needed. We’ll only use your email for Sylpace launch updates.</p></div><div className="visual"><div className="image-placeholder" role="img" aria-label="Illustration placeholder for a Sylpace learning plan"><div className="placeholder-label"><strong>A plan you can return to</strong>Goals · daily actions · progress</div></div><div className="float-card"><b>One step at a time</b><span>Make the next action clear.</span></div><div className="float-card top"><b>Keep showing up</b><span>Plan · act · reflect</span></div></div></section>
-    </div>
+  const reducedMotion = useReducedMotion();
+  return <div className="marketing-page overflow-hidden bg-[#f7f7f5] text-[#111111] dark:bg-[#080908] dark:text-[#f5f5f5]">
+    <main>
+      <section className="relative flex min-h-[92vh] items-center px-4 pt-24 sm:px-6 lg:px-8" aria-labelledby="hero-title">
+        <div aria-hidden="true" className="absolute inset-0 overflow-hidden"><div className="absolute left-[12%] top-[22%] h-2 w-2 rounded-full bg-emerald-500/60" /><div className="absolute right-[18%] top-[30%] h-1.5 w-1.5 rounded-full bg-black/20 dark:bg-white/25" /><div className="absolute bottom-[18%] right-[30%] h-3 w-3 rounded-full border border-emerald-500/30" /></div>
+        <div className="relative mx-auto max-w-5xl text-center">
+          <motion.p initial={reducedMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-xs font-semibold uppercase tracking-[0.22em] text-[#18A957]">A learning accountability platform</motion.p>
+          <motion.h1 id="hero-title" initial={reducedMotion ? false : { opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }} className="mt-5 text-5xl font-bold tracking-[-0.06em] sm:text-7xl lg:text-8xl">Turn intention<br />into <span className="text-[#18A957]">progress.</span></motion.h1>
+          <motion.p initial={reducedMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-zinc-600 dark:text-zinc-300 sm:text-lg">Sylpace helps learners turn a meaningful learning goal into a practical plan, build a steady routine, and stay accountable to the work.</motion.p>
+          <motion.div initial={reducedMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mt-9"><Link href="#waitlist" className="inline-flex items-center gap-2 rounded-full bg-[#18A957] px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5 hover:bg-[#15944c]">Join the waitlist <ArrowRight className="h-4 w-4" /></Link></motion.div>
+          <p className="mt-4 text-xs text-zinc-500">No account needed. Get launch updates by email.</p>
+        </div>
+      </section>
 
-    <section className="section problem"><div className="wrap" style={{display:'contents'}}><div><span className="kicker">Why Sylpace</span><h2 className="section-title">Good intentions need a system.</h2></div><p>Big learning goals can feel hard to act on when the next step is unclear and progress is difficult to see. Sylpace brings planning, daily follow-through, and honest reflection together so you can focus on the work in front of you and learn from the work you have done.</p></div></section>
+      <section className="relative z-10 mx-4 rounded-t-[2.5rem] border border-black/10 bg-white px-5 py-20 shadow-2xl dark:border-white/10 dark:bg-[#111211] sm:mx-6 sm:px-10 lg:mx-8 lg:px-16" aria-label="How Sylpace works">
+        <div className="mx-auto max-w-6xl space-y-28">
+          {stories.map((story, index) => { const Icon = story.icon; return <motion.article key={story.title} initial={reducedMotion ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.25 }} transition={{ duration: 0.45 }} className={`grid items-center gap-10 lg:grid-cols-2 ${index % 2 ? 'lg:[&>div:first-child]:order-2' : ''}`}>
+            <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#18A957]">{story.eyebrow}</p><h2 className="mt-4 max-w-lg text-3xl font-bold tracking-[-0.04em] sm:text-5xl">{story.title}</h2><p className="mt-5 max-w-md leading-relaxed text-zinc-600 dark:text-zinc-300">{story.copy}</p><Link href="#waitlist" className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#18A957] hover:underline">Join the waitlist <ArrowRight className="h-4 w-4" /></Link></div>
+            <div className="rounded-3xl border border-black/10 bg-[#f2f3ef] p-5 shadow-sm dark:border-white/10 dark:bg-zinc-900"><div className="mb-6 flex items-center gap-2 text-sm font-semibold"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#18A957]/15 text-[#18A957]"><Icon className="h-4 w-4" /></span>Sylpace workspace</div><div className="space-y-3">{story.visual.map((item, itemIndex) => <div key={item} className="flex items-center gap-3 rounded-xl border border-black/5 bg-white px-4 py-3 text-sm dark:border-white/10 dark:bg-zinc-950"><span className={`h-2.5 w-2.5 shrink-0 rounded-full ${itemIndex === 0 ? 'bg-[#18A957]' : 'bg-zinc-300 dark:bg-zinc-700'}`} />{item}{index === 2 && itemIndex === 0 && <CheckCircle2 className="ml-auto h-4 w-4 shrink-0 text-[#18A957]" />}</div>)}</div>{index === 3 && <div className="mt-5 flex items-end gap-2"><Flame className="h-5 w-5 text-[#18A957]" /><div className="h-2 flex-1 rounded-full bg-zinc-200 dark:bg-zinc-800"><div className="h-full w-[84%] rounded-full bg-[#18A957]" /></div></div>}</div>
+          </motion.article>; })}
+        </div>
+      </section>
 
-    <section className="section" id="how-it-works"><div className="wrap"><div className="section-head"><span className="kicker">A learning loop</span><h2>Set direction. Plan the work. Keep moving.</h2><p>Sylpace connects the small steps of learning to the outcome you are working toward.</p></div><div className="grid4">{pillars.map((item) => <article className="pillar" key={item.title}><span className="icon" aria-hidden="true">{item.icon}</span><h3>{item.title}</h3><p>{item.text}</p></article>)}</div></div></section>
-
-    <section className="section"><div className="wrap feature-split"><div><span className="kicker">From ambition to action</span><h2>Know what to work on next.</h2><p style={{color:'var(--muted)',lineHeight:1.75}}>Start with an outcome you care about, then shape it into milestones, weekly objectives, and daily tasks. Use your plan to guide each study session and your check-ins to keep an honest record of the effort.</p><ul className="check-list"><li><span className="check">✓</span><span>Goals with milestones and target dates</span></li><li><span className="check">✓</span><span>Weekly objectives and daily tasks</span></li><li><span className="check">✓</span><span>Daily check-ins for work, learning time, and blockers</span></li><li><span className="check">✓</span><span>Progress reviews and curated learning resources</span></li></ul></div><div className="image-placeholder" style={{height:330}} role="img" aria-label="Placeholder for a Sylpace planning and progress screen"><div className="placeholder-label"><strong>Your learning, made visible</strong>Plan · check in · review</div></div></div></section>
-
-    <section className="section who" id="students"><div className="wrap"><div className="section-head"><span className="kicker">Who it is for</span><h2>A focused start, with room to grow.</h2><p>Sylpace is being developed for learners who want a practical structure for making progress on a meaningful goal.</p></div><div className="audience-grid"><article className="audience"><span>For learners</span><h3>Make progress with a plan</h3><p>Turn a broad learning ambition into manageable work, build a routine, and see the evidence of your progress.</p></article><article className="audience"><span>For learning communities</span><h3>Accountability with people</h3><p>Use regular reflection and group review to share progress, surface blockers, and keep learning moving.</p></article></div></div></section>
-
-    <section className="section" id="tutors"><div className="wrap"><div className="audience"><span>For tutors and mentors</span><h3>Help learners keep moving.</h3><p>Sylpace is designed to make room for curated guidance and human accountability alongside a learner’s plan. Tutor and mentor participation details are still being decided; applications are not open yet.</p></div></div></section>
-
-    <section className="section"><div className="wrap"><div className="section-head"><span className="kicker">The roadmap</span><h2>Building the learning loop in stages.</h2></div><div className="roadmap"><div className="step"><i className="step-num"/><h3>Join the waitlist</h3><p>Get launch updates as Sylpace takes shape.</p></div><div className="step"><i className="step-num"/><h3>Set your direction</h3><p>Choose a learning outcome worth working toward.</p></div><div className="step"><i className="step-num"/><h3>Work the plan</h3><p>Turn weekly objectives into daily actions and check-ins.</p></div><div className="step"><i className="step-num"/><h3>Review and grow</h3><p>Use progress evidence and reflection to plan what comes next.</p></div></div></div></section>
-
-    <section className="section"><div className="wrap"><div className="section-head"><span className="kicker">Questions</span><h2>What to know before launch.</h2></div><div className="faq">{faqs.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div></div></section>
-
-    <footer className="wrap footer"><div className="footer-row"><a className="brand" href="#top"><span className="mark" aria-hidden="true">s</span>Sylpace</a><nav className="footer-links" aria-label="Footer"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></nav></div><div className="copyright"><span>© {new Date().getFullYear()} Sylpace</span><span>Learning accountability, with a plan.</span></div></footer>
-  </main>;
+      <motion.section id="waitlist" initial={reducedMotion ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45 }} className="scroll-mt-8 px-5 py-28 text-center sm:px-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#18A957]">Coming soon</p><h2 className="mx-auto mt-4 max-w-3xl text-4xl font-bold tracking-[-0.05em] sm:text-6xl">Build a learning practice that keeps moving.</h2><p className="mx-auto mt-5 max-w-xl leading-relaxed text-zinc-600 dark:text-zinc-300">Join the Sylpace waitlist for launch updates. Joining does not create an account or grant platform access.</p><div className="mx-auto mt-8 max-w-lg text-left"><WaitlistForm /></div>
+      </motion.section>
+    </main>
+    <footer className="border-t border-black/10 px-5 py-16 dark:border-white/10 sm:px-10"><div className="mx-auto max-w-6xl"><div className="text-5xl font-bold tracking-[-0.08em] sm:text-8xl">SYLP<span className="text-[#18A957]">A</span>CE</div><p className="mt-3 text-zinc-600 dark:text-zinc-300">Plan. Show up. Keep moving.</p><div className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-xs text-zinc-500"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/contact">Contact</Link><span>© {new Date().getFullYear()} Sylpace</span></div></div></footer>
+  </div>;
 }

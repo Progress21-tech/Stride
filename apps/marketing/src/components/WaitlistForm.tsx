@@ -32,7 +32,7 @@ export function WaitlistForm() {
     <label className="waitlist-email">Email address<input name="email" type="email" autoComplete="email" maxLength={320} placeholder="you@example.com" required /></label>
     <label className="waitlist-consent"><input name="consent" type="checkbox" required /><span>Email me occasional updates about the Sylpace launch. Read our <a href="/privacy">privacy notice</a>.</span></label>
     <label className="waitlist-trap" aria-hidden="true">Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" /></label>
-    <button className="button primary" type="submit" disabled={busy}>{busy ? 'Joiningâ€¦' : 'Join the waitlist'} <span aria-hidden="true">â†’</span></button>
+    <button className="button primary" type="submit" disabled={busy}>{busy ? 'Joining…' : 'Join the waitlist'} <span aria-hidden="true">→</span></button>
     {error && <p className="waitlist-feedback error" role="alert">{error}</p>}
     {message && <p className="waitlist-feedback" role="status">{message}</p>}
   </form>;
