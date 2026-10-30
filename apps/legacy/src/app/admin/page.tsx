@@ -144,6 +144,9 @@ export default function AdminPage() {
           <h1 className="text-2xl font-bold text-[var(--text-main)] tracking-tight">Admin Overview Dashboard</h1>
         </div>
         <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
+          <a href="/admin/waitlist" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-color)] px-2.5 py-1.5 text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+            <Inbox className="h-3.5 w-3.5" /> Waitlist
+          </a>
           <a href="/today" className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-color)] px-2.5 py-1.5 text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
             <LayoutPanelLeft className="h-3.5 w-3.5" /> Member view
           </a>

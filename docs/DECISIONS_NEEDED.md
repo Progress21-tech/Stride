@@ -1,49 +1,49 @@
-# Decisions needed
+﻿# Decisions needed
 
 Product name D1 has been answered: **Sylpace**. All launch copy should use Sylpace.
 
-## D2 � Waitlist fields
+## D2 — Waitlist fields
 
 - **Resolved by owner instruction:** Collect email only. The public form asks for explicit consent to receive launch email updates; it does not request study level, university, or department.
-- **Implemented:** `/` is the public waitlist page and stores normalized email plus the accepted consent-text version and timestamp through the API.
-- **Still required before production:** D12 legal review, confirmed retention/contact details, and configured production API/database.
-## D5 — Tutor intake
+- **Implemented:** `/` is a public waitlist with no login/signup links. The API stores normalized email and consent version/time in the existing Supabase project using a server-only service-role key. A temporary `/admin/waitlist` page lists entries only for a verified Supabase user explicitly registered in `waitlist_admins`.
+- **Still required before production:** D12 legal review, confirmed retention/contact details, Supabase schema setup, production API secrets, and insertion of the owner's verified Auth user UUID in `waitlist_admins`.
+## D5 â€” Tutor intake
 
 - **Question:** Is tutor intake invite-only or open application? What vetting, agreement, and compensation terms apply?
 - **Options:** Invite-only first (recommended); open applications with owner-defined criteria; defer tutor intake.
-- **Blocked:** “Teach with us” CTA destination, tutor interest form, and tutor onboarding screens.
+- **Blocked:** â€œTeach with usâ€ CTA destination, tutor interest form, and tutor onboarding screens.
 
-## D6 — Hosting and budget
+## D6 â€” Hosting and budget
 
 - **Question:** Which hosting providers and regions should be used, and what is the monthly budget ceiling?
 - **Options:** Owner selects provider/region/budget; no provider is assumed in this implementation.
 - **Blocked:** Provisioning managed PostgreSQL/Redis/object storage, production/staging deployment, secrets configuration, backup/PITR setup, and restore drill. Local code and environment-variable interfaces can be prepared.
 
-## D8 — Existing data migration
+## D8 â€” Existing data migration
 
 - **Question:** Do existing Sylpace users and their data need to be migrated from the current Supabase-backed app?
 - **Options:** Migrate all; migrate selected records; do not migrate and retire the old app after notice.
 - **Blocked:** Account/data migration, disabling the old app, removal of the old Supabase auth/data dependencies, and production cutover.
 
-## D9 — Image supply and licensing
+## D9 â€” Image supply and licensing
 
 - **Question:** Which owner-supplied photographs may be used, and what are their credits/licences and alt text?
 - **Options:** Supply original images and metadata; supply licensed images and proof; continue with neutral labeled placeholders.
 - **Blocked:** Final image processing and production launch. The site uses labeled placeholders until metadata and images are supplied.
 
-## D10 — Launch market and institutions
+## D10 â€” Launch market and institutions
 
 - **Question:** Confirm Nigeria and name the first universities/faculties.
 - **Recommendation:** Nigeria, with science first and engineering next.
 - **Blocked:** Phase 2 institution data, tutor targeting, and course catalogue seed data.
 
-## D11 — Course list ownership
+## D11 â€” Course list ownership
 
 - **Question:** Who defines each university's course list?
 - **Options:** Admins using official lists (recommended); tutors; another owner-defined workflow.
 - **Blocked:** Phase 2 catalogue administration workflow.
 
-## D12 — Legal and content rights
+## D12 â€” Legal and content rights
 
 - **Question:** Approve privacy policy, terms, tutor content ownership/licensing, and takedown process with owner and counsel.
 - **Options:** Review the clearly labeled draft pages and provide approved text; counsel supplies final pages.

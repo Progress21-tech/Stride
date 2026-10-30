@@ -398,3 +398,43 @@ CREATE POLICY "Admins have full access to operational data" ON public.milestones
 
 DROP POLICY IF EXISTS "Admins have full access to audit events" ON public.audit_events;
 CREATE POLICY "Admins have full access to audit events" ON public.audit_events FOR ALL USING (public.is_admin());
+
+-- ---------------------------------------------------------------------------
+-- 10. TEMPORARY PUBLIC WAITLIST (PRIVATE TO THE EXPLICITLY REGISTERED OWNER)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.waitlist_admins (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.waitlist_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL UNIQUE CHECK (email = lower(btrim(email)) AND length(email) <= 320),
+  consent_version TEXT NOT NULL,
+  consent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.waitlist_admins ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.waitlist_entries ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.waitlist_admins FROM anon, authenticated;
+REVOKE ALL ON public.waitlist_entries FROM anon, authenticated;
+GRANT SELECT ON public.waitlist_admins TO authenticated;
+GRANT SELECT ON public.waitlist_entries TO authenticated;
+GRANT ALL ON public.waitlist_entries TO service_role;
+
+DROP POLICY IF EXISTS "Waitlist owner can see own access record" ON public.waitlist_admins;
+CREATE POLICY "Waitlist owner can see own access record"
+  ON public.waitlist_admins FOR SELECT TO authenticated USING (user_id = auth.uid());
+
+DROP POLICY IF EXISTS "Waitlist owner can read submissions" ON public.waitlist_entries;
+CREATE POLICY "Waitlist owner can read submissions"
+  ON public.waitlist_entries FOR SELECT TO authenticated
+  USING (EXISTS (
+    SELECT 1 FROM public.waitlist_admins owner_access
+    WHERE owner_access.user_id = auth.uid()
+  ));
+
+-- Add only your own already-verified Supabase Auth user ID here via SQL Editor.
+-- Example: INSERT INTO public.waitlist_admins (user_id)
+--          VALUES ('YOUR_VERIFIED_AUTH_USER_UUID') ON CONFLICT DO NOTHING;

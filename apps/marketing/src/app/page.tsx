@@ -1,10 +1,9 @@
 import { WaitlistForm } from '../components/WaitlistForm';
 
 export default function HomePage() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.sylpace.com';
   return <main className="shell waitlist-home">
     <div className="wrap">
-      <header className="nav"><a className="brand" href="/" aria-label="Sylpace home"><span className="mark" aria-hidden="true">s</span>Sylpace</a><nav className="nav-links" aria-label="Main navigation"><a href="#about">About</a><a href={appUrl}>Sign in</a></nav></header>
+      <header className="nav"><a className="brand" href="/" aria-label="Sylpace home"><span className="mark" aria-hidden="true">s</span>Sylpace</a><nav className="nav-links" aria-label="Main navigation"><a href="#about">About</a></nav></header>
       <section className="waitlist-hero" aria-labelledby="waitlist-title">
         <div className="waitlist-copy"><span className="eyebrow"><i className="pulse"/>Launching soon</span><h1 id="waitlist-title">A steadier way to learn starts here.</h1><p className="lead">Sylpace brings tutor-led university courses and a simple learning routine together. Join the waitlist for launch updates.</p><WaitlistForm /><p className="subnote">No account needed to join. We’ll only use your email for Sylpace launch updates.</p></div>
         <div className="waitlist-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-card"><span className="art-mark">s</span><span className="art-line long"/><span className="art-line"/><span className="art-line short"/><div className="art-check">✓</div></div><div className="art-caption">Learn with a plan.<br/><strong>Keep showing up.</strong></div></div>

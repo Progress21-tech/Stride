@@ -1,6 +1,5 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { prisma } from '@sylpace/db';
 
 const requestSchema = z.object({
   email: z.string().trim().email().max(320),
@@ -18,13 +17,28 @@ export async function registerWaitlistRoutes(app: FastifyInstance, options: { al
     if (!parsed.success) return reply.code(400).send({ message: 'Enter a valid email and confirm consent to receive updates.' });
     if (parsed.data.website) return reply.code(202).send({ message: 'Thanks. If the address is eligible, it will be added to the launch list.' });
 
+    const supabaseUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceKey) return reply.code(503).send({ message: 'Waitlist signup is temporarily unavailable.' });
+
     try {
-      await prisma.waitlistEntry.create({ data: { email: parsed.data.email.toLowerCase(), consentVersion: 'launch-updates-2026-10' } });
-    } catch (error) {
-      if (!(typeof error === 'object' && error && 'code' in error && error.code === 'P2002')) {
-        request.log.error('Waitlist submission could not be saved.');
+      const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/waitlist_entries?on_conflict=email`, {
+        method: 'POST',
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=ignore-duplicates,return=minimal',
+        },
+        body: JSON.stringify({ email: parsed.data.email.toLowerCase(), consent_version: 'launch-updates-2026-10' }),
+      });
+      if (!response.ok) {
+        request.log.error({ statusCode: response.status }, 'Supabase waitlist write failed.');
         return reply.code(503).send({ message: 'We could not save your request right now. Please try again later.' });
       }
+    } catch {
+      request.log.error('Supabase waitlist request failed.');
+      return reply.code(503).send({ message: 'We could not save your request right now. Please try again later.' });
     }
     return reply.code(202).send({ message: 'Thanks. If the address is eligible, it will be added to the launch list.' });
   });
