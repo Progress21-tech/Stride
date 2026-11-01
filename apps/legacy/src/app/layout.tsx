@@ -6,7 +6,7 @@ import { InstallAppPrompt } from '@/components/InstallAppPrompt';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
-    title: 'Sylpace — Structured Learning Platform',
+    title: 'Sylpace | Structured Learning Platform',
     description: 'A structured accountability platform for turning learning goals into consistent progress.',
     manifest: '/manifest.json',
     themeColor: '#18A957',

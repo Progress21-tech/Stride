@@ -5,7 +5,7 @@ import { ThemeProvider, ThemeToggle } from '@/components/ThemeProvider';
 import { InstallPrompt } from '@/components/InstallPrompt';
 
 export const metadata: Metadata = {
-  title: 'Sylpace — Learn with a plan',
+  title: 'Sylpace | Learn with a plan',
   description: 'Sylpace learning workspace for students.',
   applicationName: 'Sylpace',
   referrer: 'no-referrer',

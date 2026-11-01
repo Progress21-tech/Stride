@@ -294,7 +294,7 @@ export default function AdminPage() {
                         {history.map((event) => (
                           <div key={event.id} className="text-[10px] text-[var(--text-muted)] flex items-center gap-2">
                             <span className="font-mono">{new Date(event.timestamp).toLocaleString()}</span>
-                            <span>—</span>
+                            <span>-</span>
                             <span>{event.action}</span>
                             {event.metadata && (
                               <span className="text-[var(--text-muted)]">

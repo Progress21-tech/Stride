@@ -25,7 +25,13 @@ export async function buildServer() {
   if (process.env.NODE_ENV === 'production' && (!(process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL) || !(process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY))) {
     throw new Error('Supabase URL and anon key are required for the temporary waitlist.');
   }
-  const allowedOrigins = env.API_CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean);
+  const vercelOrigins = [process.env.VERCEL_PROJECT_PRODUCTION_URL, process.env.VERCEL_URL]
+    .filter((host): host is string => Boolean(host))
+    .map((host) => `https://${host}`);
+  const allowedOrigins = [...new Set([
+    ...env.API_CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean),
+    ...vercelOrigins,
+  ])];
   if (process.env.NODE_ENV === 'production' && !env.REDIS_URL) throw new Error('REDIS_URL is required in production.');
   const redis = env.REDIS_URL ? new Redis(env.REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 1 }) : undefined;
   const app = Fastify({

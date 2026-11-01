@@ -358,7 +358,7 @@ export async function calculateUserStreak(userId: string, timezone?: string): Pr
 }
 
 // ============================================================================
-// 5. EMERGENCY PASSES (PRD Section 14.3 — Max 2 per month)
+// 5. EMERGENCY PASSES (PRD Section 14.3: Max 2 per month)
 // ============================================================================
 export async function useEmergencyPass(userId: string, reason?: string, timezone?: string): Promise<boolean> {
   const monthStr = localMonth(timezone);

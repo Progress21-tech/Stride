@@ -22,7 +22,7 @@ The marketing form and the PWA call `/api/...` from the browser, through the pub
 
 - Configure `NEXT_PUBLIC_API_URL=http://localhost:4000` only for local development. Leave it unset on Vercel so browser requests use same-origin `/api/...` and work on the main and app hosts.
 - Set `NEXT_PUBLIC_MARKETING_URL` and `NEXT_PUBLIC_APP_URL` to the actual public and app origins with `https://` (for example, `https://sylpace.vercel.app`). The marketing app also accepts a bare hostname and normalizes it to HTTPS for metadata and sitemap URLs.
-- Configure `API_CORS_ORIGINS` with the exact marketing and app origins.
+- Configure `API_CORS_ORIGINS` with the exact marketing and app origins, including custom domains. Vercel's `VERCEL_PROJECT_PRODUCTION_URL` and `VERCEL_URL` hosts are added automatically.
 - Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` for the API's waitlist write path. The anon key is public; Supabase RLS grants it waitlist insert only. Do not configure a service-role key for this flow. The legacy frontend also needs only the Supabase URL and anon key.
 - Configure the other API variables from `.env.example` for auth email, PostgreSQL, and Redis.
 

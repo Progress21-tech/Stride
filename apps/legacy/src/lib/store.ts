@@ -4,7 +4,7 @@ import { User, Application, Goal, Task, CheckIn, EmergencyPass, Resource, AuditE
 export const INITIAL_RESOURCES: Resource[] = [
   {
     id: 'res-1',
-    title: 'Web Development in 2026 — Beginner Starter Guide',
+    title: 'Web Development in 2026: Beginner Starter Guide',
     url: 'https://www.youtube.com/watch?v=zJSY8tbf_ys',
     youtubeId: 'zJSY8tbf_ys',
     provider: 'YouTube (Traversy Media)',

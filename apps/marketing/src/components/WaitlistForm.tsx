@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
+// Production requests go through the same-origin Vercel /api rewrite. This
+// also prevents a mistakenly configured localhost URL from reaching visitors.
+const apiBase = process.env.NODE_ENV === 'production' ? '' : process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export function WaitlistForm() {
   const [busy, setBusy] = useState(false);

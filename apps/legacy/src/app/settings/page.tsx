@@ -164,11 +164,11 @@ export default function SettingsPage() {
             <div className="text-xs text-[var(--text-muted)] space-y-1.5">
               <div className="flex justify-between">
                 <span>Name</span>
-                <span className="text-[var(--text-main)] font-medium">{profile?.name || ' —'}</span>
+                <span className="text-[var(--text-main)] font-medium">{profile?.name || ' -'}</span>
               </div>
               <div className="flex justify-between">
                 <span>Email</span>
-                <span className="text-[var(--text-main)] font-medium">{profile?.email || ' —'}</span>
+                <span className="text-[var(--text-main)] font-medium">{profile?.email || ' -'}</span>
               </div>
               <div className="flex justify-between">
                 <span>Timezone</span>
@@ -194,7 +194,7 @@ export default function SettingsPage() {
               <h2 className="text-sm font-semibold text-[var(--text-main)]">About Sylpace</h2>
             </div>
             <div className="text-xs text-[var(--text-muted)] space-y-1">
-              <div>Sylpace v1.0 — Structured Learning Platform</div>
+              <div>Sylpace v1.0: Structured Learning Platform</div>
               <div className="flex items-center gap-1.5">
                 <Globe className="w-3 h-3" />
                 <span>PWA-ready. Install from your browser menu for app-like experience.</span>
