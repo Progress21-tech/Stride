@@ -5,6 +5,7 @@ import { useState } from 'react';
 // Production requests go through the same-origin Vercel /api rewrite. This
 // also prevents a mistakenly configured localhost URL from reaching visitors.
 const apiBase = process.env.NODE_ENV === 'production' ? '' : process.env.NEXT_PUBLIC_API_URL ?? '';
+const submissionError = 'Sorry, something went wrong. Please try again.';
 
 export function WaitlistForm() {
   const [busy, setBusy] = useState(false);
@@ -21,12 +22,18 @@ export function WaitlistForm() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.get('email'), consent: form.get('consent') === 'on', website: form.get('website') ?? '' }),
       });
-      const result = await response.json() as { message?: string };
-      if (!response.ok) throw new Error(result.message ?? 'Could not submit right now. Please try again.');
+      const responseText = await response.text();
+      let result: { message?: string } = {};
+      try {
+        result = responseText ? JSON.parse(responseText) as { message?: string } : {};
+      } catch {
+        // Proxies and serverless platforms can return plain text or HTML errors.
+      }
+      if (!response.ok) throw new Error(submissionError);
       setMessage(result.message ?? 'Thanks for joining the Sylpace launch list.');
       formElement.reset();
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Could not submit right now. Please try again.');
+    } catch {
+      setError(submissionError);
     } finally { setBusy(false); }
   }
 
